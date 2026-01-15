@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/png" href="/src/assets/AURAPAL.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b1220" />
+
+    <!-- Primary metadata -->
+    <title>AuraPal — Privacy-first community for real connection</title>
+    <meta
+      name="description"
+      content="AuraPal — Encrypted conversations, mindful matches, zero data mining. Connect with real people while keeping your privacy."
+    />
+    <meta
+      name="keywords"
+      content="privacy, social network, encrypted messaging, mindful connection"
+    />
+    <meta name="author" content="AuraPal" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://aurapal.org/" />
+    <meta
+      property="og:title"
+      content="AuraPal — Privacy-first community for real connection"
+    />
+    <meta
+      property="og:description"
+      content="Encrypted conversations, mindful matches, zero data mining."
+    />
+    <meta property="og:image" content="/src/assets/og-image.png" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@aurapal" />
+    <meta
+      name="twitter:title"
+      content="AuraPal — Privacy-first community for real connection"
+    />
+    <meta
+      name="twitter:description"
+      content="Encrypted conversations, mindful matches, zero data mining."
+    />
+    <meta name="twitter:image" content="/src/assets/og-image.png" />
+
+    <!-- Performance hints -->
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Example font (optional) -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- App manifest (optional) -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+
+    <!-- Fallback CSS for non-JS users -->
+    <noscript>
+      <style>
+        body {
+          background: #0b1220;
+          color: #e6eef8;
+          font-family: system-ui, -apple-system, "Segoe UI", Roboto,
+            "Helvetica Neue", Arial;
+        }
+      </style>
+    </noscript>
+  </head>
+
+  <body>
+    <div id="root" aria-live="polite"></div>
+
+    <!-- Prevent theme flash on page load -->
+    <script>
+      const theme = localStorage.getItem('ap-theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', theme);
+    </script>
+
+    <!-- Vite entry -->
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

@@ -2,27 +2,27 @@ import React, { useEffect, useRef, useState, useCallback } from 'react'
 import { AnonymousOnboarding } from '../../components/AnonymousOnboarding'
 import { useGuest } from '../../hooks/useGuest'
 import socketApi from '../../api/socket'
-import ChatSidebar from './Sidebar/ChatSidebar'
-import ChatHeader from './Header/ChatHeader'
-import MessageList from './Messages/MessageList'
-import ChatComposer from './Composer/ChatComposer'
-import FriendRequestsPanel from './Friends/FriendRequestsPanel'
+import StartChat from '../../components/StartChat'
+import SearchOverlay from '../../components/SearchOverlay'
+import ChatRoom from '../../components/ChatRoom'
+import FriendRequest from '../../components/FriendRequest'
 
 export default function ChatPage() {
   const { guest, startAsGuest, isOnboarded, setOnboarded } = useGuest()
+  const [state, setState] = useState('idle') // 'idle', 'searching', 'connected', 'friendRequest'
   const [connected, setConnected] = useState(false)
   const [peer, setPeer] = useState(null)
   const [messages, setMessages] = useState([])
   const [typing, setTyping] = useState(false)
   const [pendingRequests, setPendingRequests] = useState([])
+  const [currentFriendRequest, setCurrentFriendRequest] = useState(null)
 
   const socketRef = useRef(null)
-  const [activeTab, setActiveTab] = useState('random')
 
   const isAuthenticated = !!localStorage.getItem('ap-auth-demo')
 
   useEffect(() => {
-    if (!isOnboarded) return
+    if (!isOnboarded || state === 'idle') return
     if (!guest) startAsGuest()
 
     const s = socketApi.connect(guest || undefined)
@@ -34,12 +34,15 @@ export default function ChatPage() {
 
     const offPaired = socketApi.on('paired', ({ peerId, peerMeta }) => {
       setPeer({ id: peerId, meta: peerMeta })
+      setMessages([])
+      setState('connected')
       setMessages((m) => [...m, { id: `sys_${Date.now()}`, system: true, text: 'Paired with stranger' }])
     })
 
     const offUnpaired = socketApi.on('unpaired', () => {
       setPeer(null)
       setMessages((m) => [...m, { id: `sys_${Date.now()}`, system: true, text: 'Unpaired' }])
+      setState('idle')
     })
 
     const offChat = socketApi.on('chat_message', (msg) => {
@@ -58,15 +61,18 @@ export default function ChatPage() {
     })
 
     const offFriendRequest = socketApi.on('friend_request', (req) => {
-      setPendingRequests((p) => [...p, req])
+      setCurrentFriendRequest(req)
+      setState('friendRequest')
     })
 
     const offFriendAdded = socketApi.on('friend_added', (friend) => {
       setMessages((m) => [...m, { id: `sys_${Date.now()}`, system: true, text: `You are now friends with ${friend.name || friend.id}` }])
+      setState('connected')
     })
 
     const offFriendDeclined = socketApi.on('friend_declined', () => {
       setMessages((m) => [...m, { id: `sys_${Date.now()}`, system: true, text: 'Friend request declined' }])
+      setState('connected')
     })
 
     return () => {
@@ -85,7 +91,7 @@ export default function ChatPage() {
       socketApi.disconnect()
       socketRef.current = null
     }
-  }, [isOnboarded, guest, startAsGuest])
+  }, [isOnboarded, guest, startAsGuest, state])
 
   const send = useCallback((text) => {
     if (!text || !text.trim()) return
@@ -101,8 +107,24 @@ export default function ChatPage() {
     })
   }, [guest])
 
-  function handleNext() { socketApi.skipRandom(); socketApi.findRandom() }
-  function handleExit() { socketApi.stopRandom() }
+  const handleStart = () => {
+    setState('searching')
+    socketApi.findRandom()
+  }
+
+  function handleNext() {
+    setState('searching')
+    socketApi.skipRandom()
+    socketApi.findRandom()
+  }
+
+  function handleExit() {
+    setState('idle')
+    socketApi.stopRandom()
+    setPeer(null)
+    setMessages([])
+  }
+
   function handleAddFriend() {
     if (!peer) return
     socketApi.sendFriendRequest(peer.id, { name: guest?.name, avatarEmoji: guest?.avatarEmoji })
@@ -111,12 +133,14 @@ export default function ChatPage() {
 
   function acceptRequest(req) {
     socketApi.respondFriendRequest(req.id, true)
-    setPendingRequests((p) => p.filter(r => r.id !== req.id))
+    setCurrentFriendRequest(null)
+    setState('connected')
   }
 
   function declineRequest(req) {
     socketApi.respondFriendRequest(req.id, false)
-    setPendingRequests((p) => p.filter(r => r.id !== req.id))
+    setCurrentFriendRequest(null)
+    setState('connected')
   }
 
   const emitTyping = useCallback(() => { socketRef.current?.emit && socketRef.current.emit('typing') }, [])
@@ -127,27 +151,45 @@ export default function ChatPage() {
   }
 
   return (
-    <main className="min-h-screen flex bg-gray-900 text-white">
-      <ChatSidebar
-        guest={guest}
-        connected={connected}
-        onNext={handleNext}
-        onExit={handleExit}
-        onAddFriend={handleAddFriend}
-        isAuthenticated={isAuthenticated}
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-      />
-
-      <section className="flex-1 flex flex-col">
-        <ChatHeader peer={peer} onAddFriend={handleAddFriend} />
-
-        <MessageList messages={messages} typing={typing} guestId={guest?.id} />
-
-        <ChatComposer onSend={send} onTypingStart={emitTyping} onTypingStop={emitStopTyping} disabled={!peer} />
-      </section>
-
-      <FriendRequestsPanel requests={pendingRequests} onAccept={acceptRequest} onDecline={declineRequest} />
-    </main>
+    <div className="min-h-screen">
+      {state === 'idle' && <StartChat onStart={handleStart} />}
+      {state === 'searching' && <SearchOverlay />}
+      {state === 'connected' && (
+        <ChatRoom
+          peer={peer}
+          messages={messages}
+          typing={typing}
+          guestId={guest?.id}
+          onSend={send}
+          onSkip={handleNext}
+          onExit={handleExit}
+          onAddFriend={handleAddFriend}
+          onTypingStart={emitTyping}
+          onTypingStop={emitStopTyping}
+        />
+      )}
+      {state === 'friendRequest' && (
+        <>
+          <ChatRoom
+            peer={peer}
+            messages={messages}
+            typing={typing}
+            guestId={guest?.id}
+            onSend={send}
+            onSkip={handleNext}
+            onExit={handleExit}
+            onAddFriend={handleAddFriend}
+            onTypingStart={emitTyping}
+            onTypingStop={emitStopTyping}
+          />
+          <FriendRequest
+            request={currentFriendRequest}
+            onAccept={acceptRequest}
+            onDecline={declineRequest}
+            isOpen={true}
+          />
+        </>
+      )}
+    </div>
   )
 }

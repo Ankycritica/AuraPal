@@ -39,12 +39,12 @@ export function Home() {
             <div className="mt-6 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center sm:justify-center">
               <Button
                 size="lg"
-                className="w-full sm:w-auto font-semibold rounded-full shadow-md"
-                onClick={() => navigate('/chat?mode=text')}
-                style={{ background: 'var(--brand-gradient)', color: '#fff' }}
-                aria-label="Start chatting now"
+                className="w-full sm:w-auto font-semibold rounded-full shadow-md hover:scale-105 transition-transform"
+                onClick={() => navigate('/chat')}
+                style={{ background: 'linear-gradient(135deg, #8b5cf6 0%, #06b6d4 100%)', color: '#fff' }}
+                aria-label="Start chat"
               >
-                Start Chatting Now
+                Start Chat
               </Button>
 
               <Button

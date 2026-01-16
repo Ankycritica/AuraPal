@@ -20,17 +20,16 @@ export function AnonymousOnboarding({ onComplete }) {
     // Generate guest identity
     const identity = generateGuestIdentity()
     setGuestIdentity(identity)
+    setLoading(false)
 
     // Autodetect country using IP geolocation
     fetch('https://ipapi.co/json/')
       .then(res => res.json())
       .then(data => {
         setCountry(data.country_name || 'Unknown')
-        setLoading(false)
       })
       .catch(() => {
-        setCountry('Unknown')
-        setLoading(false)
+        // Country remains 'Unknown'
       })
   }, [])
 

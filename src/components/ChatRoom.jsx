@@ -47,9 +47,11 @@ export default function ChatRoom({
     }
   }
 
-  // Generate random avatars
-  const userAvatar = '😊' // You can make this dynamic
-  const peerAvatar = '🤔' // You can make this dynamic
+  // Get user and peer avatars and names
+  const userAvatar = localStorage.getItem('anonAvatar') || '😊'
+  const userName = localStorage.getItem('anonGuestName') || 'You'
+  const peerAvatar = peer ? '🤔' : '🤔' // Could be improved to use peer's avatar if available
+  const peerName = peer?.guestName || 'Stranger'
 
   return (
     <div className="min-h-screen bg-gray-900 text-white flex flex-col">
@@ -59,7 +61,7 @@ export default function ChatRoom({
           <div className="flex items-center space-x-2">
             <span className="text-2xl">{userAvatar}</span>
             <div className="text-left">
-              <p className="text-sm text-gray-300">You</p>
+              <p className="text-sm text-gray-300">{userName}</p>
               <p className="text-xs text-gray-500">
                 {localStorage.getItem('anonAge')}, {localStorage.getItem('anonGender')}, {localStorage.getItem('anonCountry')}
               </p>
@@ -68,7 +70,7 @@ export default function ChatRoom({
           <div className="flex items-center space-x-2">
             <span className="text-2xl">{peerAvatar}</span>
             <div className="text-left">
-              <p className="text-sm text-gray-300">Stranger</p>
+              <p className="text-sm text-gray-300">{peerName}</p>
               {peer && (
                 <p className="text-xs text-gray-500">
                   {peer.age}, {peer.gender}, {peer.country}

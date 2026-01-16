@@ -47,7 +47,8 @@ export function findRandom() {
   const age = localStorage.getItem('anonAge')
   const gender = localStorage.getItem('anonGender')
   const country = localStorage.getItem('anonCountry')
-  safeEmit('find_random', { age, gender, country })
+  const guestName = localStorage.getItem('anonGuestName')
+  safeEmit('find_random', { age, gender, country, guestName })
 }
 export function skipRandom() { safeEmit('skip_random') }
 export function stopRandom() { safeEmit('stop_random') }

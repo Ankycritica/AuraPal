@@ -56,9 +56,9 @@ io.on('connection', (socket) => {
     meta.set(socket.id, { id: g.id, name: g.name, avatar: g.avatar, country: g.country })
   }
 
-  socket.on('find_random', ({ age, gender, country }, cb) => {
+  socket.on('find_random', ({ age, gender, country, guestName }, cb) => {
     const existingMeta = meta.get(socket.id) || {}
-    meta.set(socket.id, { ...existingMeta, age, gender, country })
+    meta.set(socket.id, { ...existingMeta, age, gender, country, guestName })
     if (!waiting.includes(socket.id)) waiting.push(socket.id)
     if (typeof cb === 'function') cb({ ok: true, queued: true, position: waiting.indexOf(socket.id) + 1 })
     tryPair()
@@ -171,14 +171,16 @@ io.on('connection', (socket) => {
         peerMeta: { name: bMeta.name, avatarEmoji: bMeta.avatar, country: bMeta.country },
         age: bMeta.age,
         gender: bMeta.gender,
-        country: bMeta.country
+        country: bMeta.country,
+        guestName: bMeta.guestName
       })
       io.to(b).emit('paired', {
         peerId: aMeta.id,
         peerMeta: { name: aMeta.name, avatarEmoji: aMeta.avatar, country: aMeta.country },
         age: aMeta.age,
         gender: aMeta.gender,
-        country: aMeta.country
+        country: aMeta.country,
+        guestName: aMeta.guestName
       })
     }
   }

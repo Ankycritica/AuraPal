@@ -5,16 +5,22 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { Input } from './ui/input'
 import { Select } from './ui/select'
 import { useNavigate } from 'react-router-dom'
+import { generateGuestIdentity } from '../../server/utils/generateGuestIdentity'
 
 export function AnonymousOnboarding({ onComplete }) {
   const [age, setAge] = useState('')
   const [gender, setGender] = useState('')
   const [country, setCountry] = useState('')
+  const [guestIdentity, setGuestIdentity] = useState(null)
   const [loading, setLoading] = useState(true)
 
   const navigate = useNavigate()
 
   useEffect(() => {
+    // Generate guest identity
+    const identity = generateGuestIdentity()
+    setGuestIdentity(identity)
+
     // Autodetect country using IP geolocation
     fetch('https://ipapi.co/json/')
       .then(res => res.json())
@@ -29,29 +35,41 @@ export function AnonymousOnboarding({ onComplete }) {
   }, [])
 
   const handleSubmit = () => {
-    if (!age || !gender || !country) return
+    if (!age || !gender || !country || !guestIdentity) return
     // Store in localStorage for session use
     localStorage.setItem('anonAge', age)
     localStorage.setItem('anonGender', gender)
     localStorage.setItem('anonCountry', country)
+    localStorage.setItem('anonGuestName', guestIdentity.name)
+    localStorage.setItem('anonAvatar', guestIdentity.avatar)
     onComplete()
   }
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-white">Detecting your location...</div>
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900">
+        <div className="text-white">Setting up your guest identity...</div>
       </div>
     )
   }
 
   return (
-    <div className="flex items-center justify-center h-[calc(100vh-200px)]">
-      <Card style={{ background: 'var(--surface)', color: 'var(--text)', maxWidth: 420 }}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-90 backdrop-blur-sm">
+      <Card style={{ background: 'var(--surface)', color: 'var(--text)', maxWidth: 420, width: '90%' }}>
         <CardHeader>
-          <CardTitle className="text-xl">Before you start…</CardTitle>
+          <CardTitle className="text-xl text-center">Welcome to AuraPal</CardTitle>
+          <p className="text-sm text-center" style={{ color: 'var(--muted)' }}>
+            Let's set up your anonymous profile
+          </p>
         </CardHeader>
         <CardContent className="space-y-6">
+          {/* Guest Identity Display */}
+          <div className="text-center">
+            <div className="text-4xl mb-2">{guestIdentity.avatar}</div>
+            <p className="text-lg font-semibold">{guestIdentity.name}</p>
+            <p className="text-sm" style={{ color: 'var(--muted)' }}>Your guest identity</p>
+          </div>
+
           <div>
             <label className="block mb-2 text-sm" style={{ color: 'var(--muted)' }}>
               Age
@@ -112,7 +130,7 @@ export function AnonymousOnboarding({ onComplete }) {
             disabled={!age || !gender || !country}
             style={{ background: 'var(--brand-gradient)', color: '#fff', width: '100%' }}
           >
-            I AGREE, LET’S GO!
+            Continue as {guestIdentity.name}
           </Button>
 
           <p className="text-sm text-center" style={{ color: 'var(--muted)' }}>

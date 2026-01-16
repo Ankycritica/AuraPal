@@ -43,12 +43,19 @@ function safeEmit(event, payload, cb) {
   socket.emit(event, payload, cb)
 }
 
-export function findRandom() { safeEmit('find_random') }
+export function findRandom() {
+  const age = localStorage.getItem('anonAge')
+  const gender = localStorage.getItem('anonGender')
+  const country = localStorage.getItem('anonCountry')
+  safeEmit('find_random', { age, gender, country })
+}
 export function skipRandom() { safeEmit('skip_random') }
 export function stopRandom() { safeEmit('stop_random') }
 export function sendMessage(msg, cb) { safeEmit('chat_message', msg, cb) }
 export function sendFriendRequest(toId, fromMeta = {}) { safeEmit('friend_request', { toId, fromMeta }) }
 export function respondFriendRequest(requestId, accept) { safeEmit('friend_response', { requestId, accept }) }
+export function reportUser(userId, reason) { safeEmit('report_user', { userId, reason }) }
+export function blockUser(userId) { safeEmit('block_user', { userId }) }
 
 export function on(event, cb) {
   const s = ensureSocket()
@@ -65,5 +72,5 @@ export function off(event, cb) {
 
 export default {
   connect, disconnect, findRandom, skipRandom, stopRandom, sendMessage,
-  sendFriendRequest, respondFriendRequest, on, off
+  sendFriendRequest, respondFriendRequest, reportUser, blockUser, on, off
 }

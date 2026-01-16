@@ -58,7 +58,23 @@ export default function ChatRoom({
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2">
             <span className="text-2xl">{userAvatar}</span>
+            <div className="text-left">
+              <p className="text-sm text-gray-300">You</p>
+              <p className="text-xs text-gray-500">
+                {localStorage.getItem('anonAge')}, {localStorage.getItem('anonGender')}, {localStorage.getItem('anonCountry')}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center space-x-2">
             <span className="text-2xl">{peerAvatar}</span>
+            <div className="text-left">
+              <p className="text-sm text-gray-300">Stranger</p>
+              {peer && (
+                <p className="text-xs text-gray-500">
+                  {peer.age}, {peer.gender}, {peer.country}
+                </p>
+              )}
+            </div>
           </div>
         </div>
         <div className="flex items-center space-x-2">

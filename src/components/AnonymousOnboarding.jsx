@@ -1,21 +1,48 @@
 // src/components/AnonymousOnboarding.jsx
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from './ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
+import { Input } from './ui/input'
+import { Select } from './ui/select'
 import { useNavigate } from 'react-router-dom'
 
 export function AnonymousOnboarding({ onComplete }) {
+  const [age, setAge] = useState('')
   const [gender, setGender] = useState('')
-  const [ageConfirmed, setAgeConfirmed] = useState(false)
+  const [country, setCountry] = useState('')
+  const [loading, setLoading] = useState(true)
 
   const navigate = useNavigate()
 
+  useEffect(() => {
+    // Autodetect country using IP geolocation
+    fetch('https://ipapi.co/json/')
+      .then(res => res.json())
+      .then(data => {
+        setCountry(data.country_name || 'Unknown')
+        setLoading(false)
+      })
+      .catch(() => {
+        setCountry('Unknown')
+        setLoading(false)
+      })
+  }, [])
+
   const handleSubmit = () => {
-    if (!gender || !ageConfirmed) return
-    // store in localStorage for session use
+    if (!age || !gender || !country) return
+    // Store in localStorage for session use
+    localStorage.setItem('anonAge', age)
     localStorage.setItem('anonGender', gender)
-    localStorage.setItem('anonAgeConfirmed', 'true')
+    localStorage.setItem('anonCountry', country)
     onComplete()
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-white">Detecting your location...</div>
+      </div>
+    )
   }
 
   return (
@@ -26,46 +53,53 @@ export function AnonymousOnboarding({ onComplete }) {
         </CardHeader>
         <CardContent className="space-y-6">
           <div>
-            <p className="mb-2 text-sm" style={{ color: 'var(--muted)' }}>
-              Select your gender so we can match you with the right people.
-            </p>
-            <div className="flex gap-4">
-              <label>
-                <input
-                  type="radio"
-                  name="gender"
-                  value="male"
-                  checked={gender === 'male'}
-                  onChange={(e) => setGender(e.target.value)}
-                /> Male
-              </label>
-              <label>
-                <input
-                  type="radio"
-                  name="gender"
-                  value="female"
-                  checked={gender === 'female'}
-                  onChange={(e) => setGender(e.target.value)}
-                /> Female
-              </label>
-              <label>
-                <input
-                  type="radio"
-                  name="gender"
-                  value="other"
-                  checked={gender === 'other'}
-                  onChange={(e) => setGender(e.target.value)}
-                /> Prefer not to say
-              </label>
-            </div>
+            <label className="block mb-2 text-sm" style={{ color: 'var(--muted)' }}>
+              Age
+            </label>
+            <Input
+              type="number"
+              min="18"
+              max="99"
+              value={age}
+              onChange={(e) => setAge(e.target.value)}
+              placeholder="Enter your age"
+              className="w-full"
+            />
+          </div>
+
+          <div>
+            <label className="block mb-2 text-sm" style={{ color: 'var(--muted)' }}>
+              Gender
+            </label>
+            <Select
+              value={gender}
+              onChange={(e) => setGender(e.target.value)}
+              options={[
+                { value: 'male', label: 'Male' },
+                { value: 'female', label: 'Female' },
+                { value: 'other', label: 'Other' }
+              ]}
+              className="w-full"
+            />
+          </div>
+
+          <div>
+            <label className="block mb-2 text-sm" style={{ color: 'var(--muted)' }}>
+              Country (auto-detected)
+            </label>
+            <Input
+              value={country}
+              disabled
+              className="w-full"
+            />
           </div>
 
           <div>
             <label className="flex items-center gap-2 text-sm">
               <input
                 type="checkbox"
-                checked={ageConfirmed}
-                onChange={(e) => setAgeConfirmed(e.target.checked)}
+                checked={true}
+                disabled
               />
               I’m at least 18 years old and agree to the{' '}
               <a href="/terms" style={{ color: 'var(--brand-start)' }}>Terms of Service</a> and{' '}
@@ -75,7 +109,7 @@ export function AnonymousOnboarding({ onComplete }) {
 
           <Button
             onClick={handleSubmit}
-            disabled={!gender || !ageConfirmed}
+            disabled={!age || !gender || !country}
             style={{ background: 'var(--brand-gradient)', color: '#fff', width: '100%' }}
           >
             I AGREE, LET’S GO!

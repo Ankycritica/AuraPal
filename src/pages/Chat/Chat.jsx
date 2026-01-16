@@ -32,8 +32,8 @@ export default function ChatPage() {
     const offConnect = socketApi.on('connect', () => setConnected(true))
     const offDisconnect = socketApi.on('disconnect', () => setConnected(false))
 
-    const offPaired = socketApi.on('paired', ({ peerId, peerMeta }) => {
-      setPeer({ id: peerId, meta: peerMeta })
+    const offPaired = socketApi.on('paired', ({ peerId, peerMeta, age, gender, country }) => {
+      setPeer({ id: peerId, meta: peerMeta, age, gender, country })
       setMessages([])
       setState('connected')
       setMessages((m) => [...m, { id: `sys_${Date.now()}`, system: true, text: 'Paired with stranger' }])

@@ -37,6 +37,7 @@ export default function Onboarding({ onComplete }) {
       createdAt: new Date().toISOString()
     }
     localStorage.setItem('ap-guest-identity', JSON.stringify(onboardingData))
+    localStorage.setItem('ap-anonymous-onboarded', 'true')
     onComplete(onboardingData)
   }
 
@@ -86,13 +87,12 @@ export default function Onboarding({ onComplete }) {
               </div>
               <p className="text-xs text-gray-500 mt-1">You can change this after signing in.</p>
             </div>
+            <div className="space-y-2">
+              <SocialButtons />
+            </div>
             <Button type="submit" className="w-full bg-gradient-to-r from-purple-500 to-cyan-400">
               Start Chat
             </Button>
-          </form>
-          <div className="mt-4">
-            <SocialButtons />
-          </div>
         </CardContent>
       </Card>
     </div>

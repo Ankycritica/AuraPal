@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react'
-import { AnonymousOnboarding } from '../../components/AnonymousOnboarding'
+import Onboarding from '../../components/Onboarding'
 import { useGuest } from '../../hooks/useGuest'
 import socketApi from '../../api/socket'
 import StartChat from '../../components/StartChat'
@@ -147,7 +147,10 @@ export default function ChatPage() {
   const emitStopTyping = useCallback(() => { socketRef.current?.emit && socketRef.current.emit('stop_typing') }, [])
 
   if (!isOnboarded) {
-    return <AnonymousOnboarding onComplete={() => setOnboarded(true)} />
+    return <Onboarding onComplete={(data) => {
+      setOnboarded(true)
+      // Optionally set guest from data
+    }} />
   }
 
   return (

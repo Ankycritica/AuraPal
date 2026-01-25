@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { Button } from '../components/ui/button'
+import { Button } from './ui/button'
 import { SkipForward, LogOut, UserPlus } from 'lucide-react'
 
 export default function ChatRoom({

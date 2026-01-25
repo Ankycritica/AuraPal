@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'
-import { Button } from '../ui/button'
-import { Input } from '../ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
+import { Button } from './ui/button'
+import { Input } from './ui/input'
+import { Select } from './ui/select'
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import SocialButtons from './SocialButtons'
 import { generateGuestIdentity } from '../utils/guestIdentity'
 import { getCountry } from '../utils/geolocation'
@@ -64,16 +64,15 @@ export default function Onboarding({ onComplete }) {
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Gender</label>
-              <Select value={gender} onValueChange={setGender}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select gender" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Male">Male</SelectItem>
-                  <SelectItem value="Female">Female</SelectItem>
-                  <SelectItem value="Other">Other</SelectItem>
-                </SelectContent>
-              </Select>
+              <Select 
+                options={[
+                  { value: 'Male', label: 'Male' },
+                  { value: 'Female', label: 'Female' },
+                  { value: 'Other', label: 'Other' }
+                ]}
+                value={gender}
+                onChange={setGender}
+              />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Country</label>
@@ -93,6 +92,7 @@ export default function Onboarding({ onComplete }) {
             <Button type="submit" className="w-full bg-gradient-to-r from-purple-500 to-cyan-400">
               Start Chat
             </Button>
+          </form>
         </CardContent>
       </Card>
     </div>

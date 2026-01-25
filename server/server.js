@@ -94,7 +94,18 @@ io.on('connection', (socket) => {
   })
 
   socket.on('friend_response', ({ requestId, accept }) => {
-    // Handle response
+    // For demo, just log
+    console.log(`Friend request ${requestId} ${accept ? 'accepted' : 'declined'}`)
+  })
+
+  socket.on('report_user', ({ userId, reason }) => {
+    console.log(`User ${socket.id} reported ${userId} for: ${reason}`)
+    // In production, store in database
+  })
+
+  socket.on('block_user', ({ userId }) => {
+    console.log(`User ${socket.id} blocked ${userId}`)
+    // In production, prevent future pairings
   })
 
   socket.on('disconnect', () => {

@@ -87,7 +87,7 @@ export default function Onboarding({ onComplete }) {
               <p className="text-xs text-gray-500 mt-1">You can change this after signing in.</p>
             </div>
             <div className="space-y-2">
-              <SocialButtons />
+              <SocialButtons guestIdentity={guestIdentity} />
             </div>
             <Button type="submit" className="w-full bg-gradient-to-r from-purple-500 to-cyan-400">
               Start Chat

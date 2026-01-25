@@ -1,13 +1,15 @@
 import React from 'react'
 import { Button } from './ui/button'
 
-export default function SocialButtons() {
+export default function SocialButtons({ guestIdentity }) {
   const handleGoogle = () => {
-    window.location.href = '/api/auth/google'
+    const state = guestIdentity ? btoa(JSON.stringify(guestIdentity)) : ''
+    window.location.href = `/api/auth/google?state=${state}`
   }
 
   const handleApple = () => {
-    window.location.href = '/api/auth/apple'
+    const state = guestIdentity ? btoa(JSON.stringify(guestIdentity)) : ''
+    window.location.href = `/api/auth/apple?state=${state}`
   }
 
   return (

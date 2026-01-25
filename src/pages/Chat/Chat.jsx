@@ -6,9 +6,12 @@ import StartChat from '../../components/StartChat'
 import SearchOverlay from '../../components/SearchOverlay'
 import ChatRoom from '../../components/ChatRoom'
 import FriendRequest from '../../components/FriendRequest'
+import { useToast } from '../../contexts/ToastContext'
 
 export default function ChatPage() {
   const { guest, startAsGuest, isOnboarded, setOnboarded } = useGuest()
+  const { toast } = useToast()
+  const [user, setUser] = useState(null)
   const [state, setState] = useState('idle') // 'idle', 'searching', 'connected', 'friendRequest'
   const [connected, setConnected] = useState(false)
   const [peer, setPeer] = useState(null)
@@ -19,7 +22,33 @@ export default function ChatPage() {
 
   const socketRef = useRef(null)
 
-  const isAuthenticated = !!localStorage.getItem('ap-auth-demo')
+  useEffect(() => {
+    fetch('/api/auth/me')
+      .then(res => res.json())
+      .then(data => {
+        if (data.user) {
+          setUser(data.user)
+          toast({
+            title: 'Welcome back!',
+            description: `Logged in as ${data.user.displayName || data.user.email}`,
+            variant: 'success'
+          })
+          // Replace guest identity with user profile
+          if (data.user.guestName) {
+            localStorage.setItem('ap-guest-identity', JSON.stringify({
+              name: data.user.guestName,
+              avatar: data.user.avatarUrl || '😊',
+              age: data.user.age,
+              gender: data.user.gender,
+              country: data.user.country
+            }))
+          }
+        }
+      })
+      .catch(() => {
+        // Not authenticated
+      })
+  }, [toast])
 
   useEffect(() => {
     if (!isOnboarded || state === 'idle') return

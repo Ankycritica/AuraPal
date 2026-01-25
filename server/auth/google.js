@@ -33,9 +33,18 @@ router.get('/callback', passport.authenticate('google', { failureRedirect: '/' }
   // Link guest identity if state contains guest token
   const guestToken = req.query.state
   if (guestToken) {
-    // Link logic
+    try {
+      const guestData = JSON.parse(atob(guestToken))
+      req.user.guestName = guestData.name
+      req.user.age = guestData.age
+      req.user.gender = guestData.gender
+      req.user.country = guestData.country
+      req.user.save()
+    } catch (e) {
+      console.error('Failed to link guest identity:', e)
+    }
   }
-  res.redirect('/')
+  res.redirect('/chat')
 })
 
 export default router

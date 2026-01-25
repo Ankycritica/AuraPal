@@ -12,7 +12,7 @@ router.get('/', (req, res) => {
 router.post('/callback', async (req, res) => {
   // Verify Apple JWT
   // Similar to Google
-  res.redirect('/')
+  res.redirect('/chat')
 })
 
 export default router

@@ -11,6 +11,7 @@ export function AnonymousOnboarding({ onComplete }) {
   const [age, setAge] = useState('')
   const [gender, setGender] = useState('')
   const [country, setCountry] = useState('')
+  const [preferredGender, setPreferredGender] = useState('')
   const [guestIdentity, setGuestIdentity] = useState(null)
   const [loading, setLoading] = useState(true)
 
@@ -34,13 +35,19 @@ export function AnonymousOnboarding({ onComplete }) {
   }, [])
 
   const handleSubmit = () => {
-    if (!age || !gender || !country || !guestIdentity) return
+    if (!age || !gender || !country || !guestIdentity || !preferredGender) return
     // Store in localStorage for session use
-    localStorage.setItem('anonAge', age)
-    localStorage.setItem('anonGender', gender)
-    localStorage.setItem('anonCountry', country)
-    localStorage.setItem('anonGuestName', guestIdentity.name)
-    localStorage.setItem('anonAvatar', guestIdentity.avatar)
+    const identity = {
+      age,
+      gender,
+      country,
+      guestName: guestIdentity.name,
+      avatar: guestIdentity.avatar,
+      preferredGender
+    };
+
+    localStorage.setItem("ap-guest-identity", JSON.stringify(identity));
+    localStorage.setItem("ap-anonymous-onboarded", "true");
     onComplete()
   }
 
@@ -102,6 +109,22 @@ export function AnonymousOnboarding({ onComplete }) {
 
           <div>
             <label className="block mb-2 text-sm" style={{ color: 'var(--muted)' }}>
+              Preferred Gender to Chat With
+            </label>
+            <Select
+              value={preferredGender}
+              onChange={(e) => setPreferredGender(e.target.value)}
+              options={[
+                { value: 'male', label: 'Male' },
+                { value: 'female', label: 'Female' },
+                { value: 'any', label: 'Any' }
+              ]}
+              className="w-full"
+            />
+          </div>
+
+          <div>
+            <label className="block mb-2 text-sm" style={{ color: 'var(--muted)' }}>
               Country (auto-detected)
             </label>
             <Input
@@ -126,7 +149,7 @@ export function AnonymousOnboarding({ onComplete }) {
 
           <Button
             onClick={handleSubmit}
-            disabled={!age || !gender || !country}
+            disabled={!age || !gender || !country || !preferredGender}
             style={{ background: 'var(--brand-gradient)', color: '#fff', width: '100%' }}
           >
             Continue as {guestIdentity.name}

@@ -1,22 +1,32 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Button } from './ui/button'
 import SearchOverlay from './SearchOverlay'
-import { socket } from '../utils/socket'
+import { socket } from '../api/socket'
+import { useNavigate } from 'react-router-dom'
 
-export default function StartChat({ guestIdentity, onPaired }) {
+export default function StartChat({ onPaired }) {
   const [searching, setSearching] = useState(false)
+  const navigate = useNavigate()
+
+  const identity = JSON.parse(localStorage.getItem("ap-guest-identity") || "{}");
+
+  useEffect(() => {
+    if (!identity.guestName) {
+      console.error("Identity missing, redirecting to onboarding");
+      navigate("/onboarding");
+      return;
+    }
+    console.log("Loaded identity:", identity);
+  }, [identity, navigate]);
 
   const handleStartChat = () => {
     console.log('Start Chat button clicked in StartChat component')
     setSearching(true)
-    socket.emit('find_random', {
-      guestName: guestIdentity.guestName,
-      avatar: guestIdentity.avatar,
-      age: guestIdentity.age,
-      gender: guestIdentity.gender,
-      country: guestIdentity.country,
-      clientId: socket.id
-    })
+    socket.emit("find_random", {
+      ...identity,
+      isPremium: false
+    });
+    console.log("Emitting find_random with:", identity);
   }
 
   const handleSkip = () => {

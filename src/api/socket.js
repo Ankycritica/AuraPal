@@ -13,7 +13,7 @@ export function connect(identity) {
   if (socket) return socket
   connectedIdentity = identity
   socket = io(DEFAULT_URL, {
-    transports: ["websocket"],
+    transports: ["websocket", "polling"],
     withCredentials: true
   })
 

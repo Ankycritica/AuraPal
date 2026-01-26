@@ -32,7 +32,18 @@ app.get('/api/friends', (req, res) => {
 })
 
 const httpServer = createServer(app)
-const io = new Server(httpServer, { cors: { origin: true, credentials: true } })
+const io = new Server(httpServer, {
+  cors: {
+    origin: ["http://localhost:5173", "https://aurapal.vercel.app", "https://aurapal.org"],
+    methods: ["GET", "POST"],
+    credentials: true,
+    transports: ["websocket", "polling"]
+  }
+});
+
+io.engine.on("connection_error", (err) => {
+  console.log("Socket CORS error:", err);
+});
 
 const waiting = []
 const peers = new Map()
@@ -56,9 +67,9 @@ io.on('connection', (socket) => {
     meta.set(socket.id, { id: g.id, name: g.name, avatar: g.avatar, country: g.country })
   }
 
-  socket.on('find_random', ({ age, gender, country, guestName }, cb) => {
+  socket.on('find_random', ({ age, gender, country, guestName, preferredGender, isPremium }, cb) => {
     const existingMeta = meta.get(socket.id) || {}
-    meta.set(socket.id, { ...existingMeta, age, gender, country, guestName })
+    meta.set(socket.id, { ...existingMeta, age, gender, country, guestName, preferredGender, isPremium })
     if (!waiting.includes(socket.id)) waiting.push(socket.id)
     if (typeof cb === 'function') cb({ ok: true, queued: true, position: waiting.indexOf(socket.id) + 1 })
     tryPair()

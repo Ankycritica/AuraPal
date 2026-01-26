@@ -56,11 +56,11 @@ export function Footer() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Donate via PayPal"
-              className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-full border hover:bg-opacity-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-start)] transition-colors"
+              className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-full border hover:bg-white hover:bg-opacity-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-start)] transition-colors"
               style={{
                 color: 'var(--text)',
-                borderColor: 'rgba(255,255,255,0.2)',
-                background: 'transparent'
+                borderColor: 'var(--brand-start)',
+                background: 'rgba(255,255,255,0.05)'
               }}
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
@@ -73,11 +73,11 @@ export function Footer() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Donate via Cash App"
-              className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-full border hover:bg-opacity-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-start)] transition-colors"
+              className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-full border hover:bg-white hover:bg-opacity-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-start)] transition-colors"
               style={{
                 color: 'var(--text)',
-                borderColor: 'rgba(255,255,255,0.2)',
-                background: 'transparent'
+                borderColor: 'var(--brand-end)',
+                background: 'rgba(255,255,255,0.05)'
               }}
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">

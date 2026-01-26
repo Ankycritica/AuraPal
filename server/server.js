@@ -128,6 +128,15 @@ io.on('connection', (socket) => {
   })
 
   function tryPair() {
+    // Sort waiting by premium status (premium first)
+    waiting.sort((a, b) => {
+      const aMeta = meta.get(a)
+      const bMeta = meta.get(b)
+      if (aMeta?.isPremium && !bMeta?.isPremium) return -1
+      if (!aMeta?.isPremium && bMeta?.isPremium) return 1
+      return 0
+    })
+
     const available = [...waiting]
     while (available.length >= 2) {
       let a = available.shift()
@@ -142,25 +151,24 @@ io.on('connection', (socket) => {
         const cMeta = meta.get(candidate)
         if (!cMeta) continue
 
+        let match = false
         if (aMeta.isPremium) {
-          // Premium: only match preferred gender
-          if (cMeta.gender === aMeta.preferredGender || aMeta.preferredGender === 'Any') {
-            b = candidate
-            available.splice(i, 1)
-            break
-          }
+          // Premium: only match preferred gender, no fallback
+          match = cMeta.gender === aMeta.preferredGender || aMeta.preferredGender === 'Any'
         } else {
           // Free: prefer preferred gender, fallback to any
-          if (cMeta.gender === aMeta.preferredGender || aMeta.preferredGender === 'Any' || cMeta.preferredGender === 'Any') {
-            b = candidate
-            available.splice(i, 1)
-            break
-          }
+          match = cMeta.gender === aMeta.preferredGender || aMeta.preferredGender === 'Any' || cMeta.preferredGender === 'Any'
+        }
+
+        if (match) {
+          b = candidate
+          available.splice(i, 1)
+          break
         }
       }
 
-      if (!b) {
-        // No preferred match, take first available
+      if (!b && !aMeta.isPremium) {
+        // Free user fallback: take any available
         b = available.shift()
       }
 
@@ -170,6 +178,11 @@ io.on('connection', (socket) => {
         peers.set(b, a)
         io.to(a).emit('paired', { roomId: `room_${a}_${b}`, partner: bMeta })
         io.to(b).emit('paired', { roomId: `room_${a}_${b}`, partner: aMeta })
+        // Remove from waiting
+        const idxA = waiting.indexOf(a)
+        if (idxA >= 0) waiting.splice(idxA, 1)
+        const idxB = waiting.indexOf(b)
+        if (idxB >= 0) waiting.splice(idxB, 1)
       }
     }
   }

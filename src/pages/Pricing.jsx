@@ -69,7 +69,7 @@ export function Pricing() {
                   {/* Scanner placeholder */}
                   <div className="mt-4 flex justify-center">
                     <img
-                      src="/assets/paypal-qr.png"
+                      src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://paypal.me/AnkitD538"
                       alt="PayPal QR Code"
                       className="h-32 w-32 rounded-md border"
                       style={{ borderColor: 'rgba(255,255,255,0.06)' }}
@@ -95,7 +95,7 @@ export function Pricing() {
                   {/* Scanner placeholder */}
                   <div className="mt-4 flex justify-center">
                     <img
-                      src="/assets/cashapp-qr.png"
+                      src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://cash.app/$AuraAnky"
                       alt="Cash App QR Code"
                       className="h-32 w-32 rounded-md border"
                       style={{ borderColor: 'rgba(255,255,255,0.06)' }}

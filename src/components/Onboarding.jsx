@@ -28,6 +28,7 @@ export default function Onboarding({ onComplete }) {
   const handleSubmit = (e) => {
     e.preventDefault()
     if (!age || !gender) return
+    console.log('Start Chat clicked, submitting onboarding data')
     const onboardingData = {
       age: parseInt(age),
       gender,

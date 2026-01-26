@@ -3,11 +3,13 @@ import { Button } from './ui/button'
 
 export default function SocialButtons({ guestIdentity }) {
   const handleGoogle = () => {
+    console.log('Google button clicked')
     const state = guestIdentity ? btoa(JSON.stringify(guestIdentity)) : ''
     window.location.href = `/api/auth/google?state=${state}`
   }
 
   const handleApple = () => {
+    console.log('Apple button clicked')
     const state = guestIdentity ? btoa(JSON.stringify(guestIdentity)) : ''
     window.location.href = `/api/auth/apple?state=${state}`
   }

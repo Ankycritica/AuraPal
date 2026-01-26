@@ -13,12 +13,12 @@ export default defineConfig({
     proxy: {
       // Backend API (guest session)
       '/api': {
-        target: 'http://localhost:3001',
+        target: 'http://localhost:3000',
         changeOrigin: true,
       },
       // Socket.IO (websocket + polling)
       '/socket.io': {
-        target: 'http://localhost:3001',
+        target: 'http://localhost:3000',
         ws: true,
         changeOrigin: true,
       },

@@ -7,6 +7,7 @@ export default function StartChat({ guestIdentity, onPaired }) {
   const [searching, setSearching] = useState(false)
 
   const handleStartChat = () => {
+    console.log('Start Chat button clicked in StartChat component')
     setSearching(true)
     socket.emit('find_random', {
       guestName: guestIdentity.guestName,

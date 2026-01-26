@@ -48,6 +48,7 @@ export function findRandom() {
   const gender = localStorage.getItem('anonGender')
   const country = localStorage.getItem('anonCountry')
   const guestName = localStorage.getItem('anonGuestName')
+  console.log('Emitting find_random with data:', { age, gender, country, guestName })
   safeEmit('find_random', { age, gender, country, guestName })
 }
 export function skipRandom() { safeEmit('skip_random') }

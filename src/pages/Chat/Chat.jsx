@@ -62,6 +62,7 @@ export default function ChatPage() {
     const offDisconnect = socketApi.on('disconnect', () => setConnected(false))
 
     const offPaired = socketApi.on('paired', ({ peerId, peerMeta, age, gender, country, guestName }) => {
+      console.log('Received paired event:', { peerId, peerMeta, age, gender, country, guestName })
       setPeer({ id: peerId, meta: peerMeta, age, gender, country, guestName })
       setMessages([])
       setState('connected')

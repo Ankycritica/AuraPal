@@ -1,6 +1,6 @@
 import { io } from 'socket.io-client'
 
-const DEFAULT_URL = (import.meta.env.VITE_WS_URL) || 'http://localhost:3000'
+const DEFAULT_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:3000'
 
 let socket = null
 let connectedIdentity = null
@@ -13,12 +13,12 @@ export function connect(identity) {
   if (socket) return socket
   connectedIdentity = identity
   socket = io(DEFAULT_URL, {
-    auth: { identity },
-    reconnection: true,
-    reconnectionAttempts: Infinity,
-    reconnectionDelay: 500,
-    reconnectionDelayMax: 4000,
-    transports: ['websocket'],
+    transports: ["websocket"],
+    withCredentials: true
+  })
+
+  socket.on('connect', () => {
+    console.log('Socket connected')
   })
 
   socket.on('connect_error', (err) => {
@@ -44,15 +44,26 @@ function safeEmit(event, payload, cb) {
 }
 
 export function findRandom() {
-  const age = localStorage.getItem('anonAge')
-  const gender = localStorage.getItem('anonGender')
-  const country = localStorage.getItem('anonCountry')
-  const guestName = localStorage.getItem('anonGuestName')
-  console.log('Emitting find_random with data:', { age, gender, country, guestName })
-  safeEmit('find_random', { age, gender, country, guestName })
+  const identity = JSON.parse(localStorage.getItem('ap-guest-identity') || '{}')
+  const data = {
+    age: identity.age,
+    gender: identity.gender,
+    country: identity.country,
+    guestName: identity.guestName,
+    preferredGender: identity.preferredGender || 'Any',
+    isPremium: false // TODO: check premium status
+  }
+  console.log('Emitting find_random with data:', data)
+  safeEmit('find_random', data)
 }
-export function skipRandom() { safeEmit('skip_random') }
-export function stopRandom() { safeEmit('stop_random') }
+export function skipRandom() { 
+  console.log('Emitting skip_random')
+  safeEmit('skip_random') 
+}
+export function stopRandom() { 
+  console.log('Emitting exit')
+  safeEmit('exit') 
+}
 export function sendMessage(msg, cb) { safeEmit('chat_message', msg, cb) }
 export function sendFriendRequest(toId, fromMeta = {}) { safeEmit('friend_request', { toId, fromMeta }) }
 export function respondFriendRequest(requestId, accept) { safeEmit('friend_response', { requestId, accept }) }

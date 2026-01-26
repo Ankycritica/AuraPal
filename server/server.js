@@ -12,7 +12,11 @@ import sessionMiddleware from './auth/session.js'
 const JWT_SECRET = process.env.JWT_SECRET || 'devsecret'
 
 const app = express()
-app.use(cors({ origin: true, credentials: true }))
+app.use(cors({
+  origin: ["https://aurapal.vercel.app", "https://aurapal.org"],
+  methods: ["GET", "POST"],
+  credentials: true
+}))
 app.use(express.json())
 app.use(sessionMiddleware)
 
@@ -35,7 +39,14 @@ app.post('/api/auth/logout', (req, res) => {
 })
 
 const httpServer = createServer(app)
-const io = new Server(httpServer, { cors: { origin: true, credentials: true } })
+const io = new Server(httpServer, {
+  cors: {
+    origin: ["https://aurapal.vercel.app", "https://aurapal.org"],
+    methods: ["GET", "POST"],
+    credentials: true,
+    transports: ["websocket"]
+  }
+})
 
 const waiting = []
 const peers = new Map()
@@ -117,15 +128,49 @@ io.on('connection', (socket) => {
   })
 
   function tryPair() {
-    while (waiting.length >= 2) {
-      const a = waiting.shift()
-      const b = waiting.shift()
-      peers.set(a, b)
-      peers.set(b, a)
+    const available = [...waiting]
+    while (available.length >= 2) {
+      let a = available.shift()
+      let b = null
+
       const aMeta = meta.get(a)
-      const bMeta = meta.get(b)
-      io.to(a).emit('paired', { roomId: `room_${a}_${b}`, partner: bMeta })
-      io.to(b).emit('paired', { roomId: `room_${a}_${b}`, partner: aMeta })
+      if (!aMeta) continue
+
+      // Find best match for a
+      for (let i = 0; i < available.length; i++) {
+        const candidate = available[i]
+        const cMeta = meta.get(candidate)
+        if (!cMeta) continue
+
+        if (aMeta.isPremium) {
+          // Premium: only match preferred gender
+          if (cMeta.gender === aMeta.preferredGender || aMeta.preferredGender === 'Any') {
+            b = candidate
+            available.splice(i, 1)
+            break
+          }
+        } else {
+          // Free: prefer preferred gender, fallback to any
+          if (cMeta.gender === aMeta.preferredGender || aMeta.preferredGender === 'Any' || cMeta.preferredGender === 'Any') {
+            b = candidate
+            available.splice(i, 1)
+            break
+          }
+        }
+      }
+
+      if (!b) {
+        // No preferred match, take first available
+        b = available.shift()
+      }
+
+      if (b) {
+        const bMeta = meta.get(b)
+        peers.set(a, b)
+        peers.set(b, a)
+        io.to(a).emit('paired', { roomId: `room_${a}_${b}`, partner: bMeta })
+        io.to(b).emit('paired', { roomId: `room_${a}_${b}`, partner: aMeta })
+      }
     }
   }
 

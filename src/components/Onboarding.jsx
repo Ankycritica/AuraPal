@@ -10,6 +10,7 @@ import { getCountry } from '../utils/geolocation'
 export default function Onboarding({ onComplete }) {
   const [age, setAge] = useState('')
   const [gender, setGender] = useState('')
+  const [preferredGender, setPreferredGender] = useState('')
   const [country, setCountry] = useState('')
   const [guestIdentity, setGuestIdentity] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -32,6 +33,7 @@ export default function Onboarding({ onComplete }) {
     const onboardingData = {
       age: parseInt(age),
       gender,
+      preferredGender: preferredGender || 'Any',
       country,
       guestName: guestIdentity.name,
       avatar: guestIdentity.avatar,
@@ -73,6 +75,18 @@ export default function Onboarding({ onComplete }) {
                 ]}
                 value={gender}
                 onChange={setGender}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Preferred Gender to Chat With</label>
+              <Select 
+                options={[
+                  { value: 'Male', label: 'Male' },
+                  { value: 'Female', label: 'Female' },
+                  { value: 'Any', label: 'Any' }
+                ]}
+                value={preferredGender}
+                onChange={setPreferredGender}
               />
             </div>
             <div>

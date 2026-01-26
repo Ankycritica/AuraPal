@@ -75,8 +75,15 @@ export function Pricing() {
                       style={{ borderColor: 'rgba(255,255,255,0.06)' }}
                     />
                   </div>
-                  <Button className="mt-4 w-full" variant="outline">
-                    Pay with PayPal
+                  <Button asChild className="mt-4 w-full" variant="outline">
+                    <a
+                      href="https://paypal.me/AnkitD538"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="Donate via PayPal"
+                    >
+                      Pay with PayPal
+                    </a>
                   </Button>
                 </div>
 
@@ -94,8 +101,15 @@ export function Pricing() {
                       style={{ borderColor: 'rgba(255,255,255,0.06)' }}
                     />
                   </div>
-                  <Button className="mt-4 w-full" variant="outline">
-                    Pay with Cash App
+                  <Button asChild className="mt-4 w-full" variant="outline">
+                    <a
+                      href="https://cash.app/$AuraAnky"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="Donate via Cash App"
+                    >
+                      Pay with Cash App
+                    </a>
                   </Button>
                 </div>
               </div>

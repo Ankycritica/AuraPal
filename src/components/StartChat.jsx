@@ -1,26 +1,46 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { Button } from "./ui/button";
-import SearchOverlay from "./SearchOverlay";
-import socketAPI from "../api/socket.js";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect, useCallback } from 'react'
+import SearchOverlay from './SearchOverlay'
+import socketAPI from '../api/socket.js'
+import { useNavigate } from 'react-router-dom'
+import { X } from 'lucide-react'
+
+const TRENDING_TAGS = ['anime', 'gaming', 'music', 'fitness', 'movies', 'reading', 'coding', 'art', 'travel', 'cooking', 'photography', 'sports']
 
 export default function StartChat({ onPaired }) {
-  const [searching, setSearching] = useState(false);
-  const navigate = useNavigate();
+  const [searching, setSearching] = useState(false)
+  const [genderFilter, setGenderFilter] = useState('any')
+  const [selectedInterests, setSelectedInterests] = useState([])
+  const [customInterest, setCustomInterest] = useState('')
+  const navigate = useNavigate()
 
   const identity = React.useMemo(
-    () => JSON.parse(localStorage.getItem("ap-guest-identity") || "{}"),
+    () => JSON.parse(localStorage.getItem('ap-guest-identity') || '{}'),
     []
-  );
+  )
+
+  useEffect(() => {
+    const saved = localStorage.getItem('ap-interests')
+    if (saved) {
+      try {
+        setSelectedInterests(JSON.parse(saved))
+      } catch (e) {
+        console.error('Failed to load interests:', e)
+      }
+    }
+    const savedGender = localStorage.getItem('ap-gender')
+    if (savedGender) {
+      setGenderFilter(savedGender)
+    }
+  }, [])
 
   useEffect(() => {
     if (!identity.guestName) {
-      console.error("Identity missing, redirecting to onboarding");
-      navigate("/onboarding");
-      return;
+      console.error('Identity missing, redirecting to onboarding')
+      navigate('/onboarding')
+      return
     }
-    console.log("Loaded identity:", identity);
-  }, [identity, navigate]);
+    console.log('Loaded identity:', identity)
+  }, [identity, navigate])
 
   // Handler to run when a paired event arrives
   const handlePairedEvent = useCallback(
@@ -65,89 +85,202 @@ export default function StartChat({ onPaired }) {
     };
   }, [identity, handlePairedEvent]);
 
-  const handleStartChat = () => {
-    console.log("Start Chat button clicked in StartChat component");
-    if (!identity.guestName) {
-      console.error("Identity missing, redirecting to onboarding");
-      navigate("/onboarding");
-      return;
+  const handleAddInterest = () => {
+    if (customInterest.trim() && !selectedInterests.includes(customInterest.toLowerCase())) {
+      const newInterests = [...selectedInterests, customInterest.toLowerCase()]
+      setSelectedInterests(newInterests)
+      localStorage.setItem('ap-interests', JSON.stringify(newInterests))
+      setCustomInterest('')
     }
+  }
 
-    setSearching(true);
+  const handleRemoveInterest = (interest) => {
+    const newInterests = selectedInterests.filter((i) => i !== interest)
+    setSelectedInterests(newInterests)
+    localStorage.setItem('ap-interests', JSON.stringify(newInterests))
+  }
 
+  const handleToggleInterest = (interest) => {
+    if (selectedInterests.includes(interest)) {
+      handleRemoveInterest(interest)
+    } else {
+      const newInterests = [...selectedInterests, interest]
+      setSelectedInterests(newInterests)
+      localStorage.setItem('ap-interests', JSON.stringify(newInterests))
+    }
+  }
+
+  const handleGenderFilter = (gender) => {
+    setGenderFilter(gender)
+    localStorage.setItem('ap-gender', gender)
+  }
+
+  const handleStartChat = () => {
+    console.log('Start Text Chat button clicked')
+    if (!identity.guestName) {
+      console.error('Identity missing, redirecting to onboarding')
+      navigate('/onboarding')
+      return
+    }
+    setSearching(true)
     try {
-      // Ensure socket is initialized
-      const s = socketAPI.connect(identity);
-
-      // If already connected, emit immediately
+      const s = socketAPI.connect(identity)
       if (s && s.connected) {
-        socketAPI.findRandom();
-        console.log("Emitting find_random with:", identity);
-        return;
+        socketAPI.findRandom({
+          ...identity,
+          genderFilter,
+          interests: selectedInterests,
+          isPremium: localStorage.getItem('ap-premium') === 'true'
+        })
+        console.log('Emitting find_random with:', { genderFilter, interests: selectedInterests })
+        return
       }
-
-      // Otherwise wait for the connect event once, then emit
-      if (s && typeof s.once === "function") {
-        s.once("connect", () => {
-          console.log("Socket connected (delayed), now emitting find_random");
-          socketAPI.findRandom();
-          console.log("Emitting find_random with:", identity);
-        });
-
-        // Optional: timeout fallback if connect never happens
+      if (s && typeof s.once === 'function') {
+        s.once('connect', () => {
+          console.log('Socket connected, emitting find_random')
+          socketAPI.findRandom({
+            ...identity,
+            genderFilter,
+            interests: selectedInterests,
+            isPremium: localStorage.getItem('ap-premium') === 'true'
+          })
+        })
         setTimeout(() => {
-          const current = socketAPI.getSocket && socketAPI.getSocket();
+          const current = socketAPI.getSocket && socketAPI.getSocket()
           if (!current || !current.connected) {
-            console.warn("Socket did not connect in time; cancelling search");
-            setSearching(false);
+            console.error('Socket failed to connect after 5s timeout')
+            setSearching(false)
           }
-        }, 8000); // 8s timeout
-      } else {
-        // Fallback: try to emit (safeEmit will handle disconnected state)
-        socketAPI.findRandom();
-        console.log("Emitting find_random (fallback) with:", identity);
+        }, 5000)
       }
     } catch (err) {
-      console.error("Error emitting find_random:", err);
-      setSearching(false);
+      console.error('Error starting chat:', err)
+      setSearching(false)
     }
-  };
+  }
+
+  const handleStartVideo = () => {
+    console.log('Start Video Chat button clicked')
+    alert('Video chat coming soon!')
+  }
 
   const handleSkip = () => {
-    console.log("Skip clicked");
+    console.log('Skip clicked')
     try {
-      socketAPI.skipRandom();
+      socketAPI.skipRandom()
     } catch (err) {
-      console.error("Error emitting skip_random:", err);
+      console.error('Error emitting skip_random:', err)
     }
-  };
+  }
 
   const handleExit = () => {
-    console.log("Exit clicked");
-    setSearching(false);
+    console.log('Exit clicked')
+    setSearching(false)
     try {
-      socketAPI.stopRandom();
+      socketAPI.stopRandom()
     } catch (err) {
-      console.error("Error emitting exit:", err);
+      console.error('Error emitting exit:', err)
     }
-  };
+  }
 
   if (searching) {
-    return <SearchOverlay onSkip={handleSkip} onExit={handleExit} />;
+    return <SearchOverlay onSkip={handleSkip} onExit={handleExit} />
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-gray-900 to-cyan-900">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold text-white mb-8">Ready to Connect?</h1>
-        <Button
-          size="lg"
-          className="px-12 py-4 text-xl font-semibold rounded-full shadow-lg hover:scale-105 transition-all duration-300 bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600"
-          onClick={handleStartChat}
-        >
-          Start Chat
-        </Button>
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6">
+      <div className="w-full max-w-2xl space-y-8">
+        <div className="text-center space-y-3">
+          <h1 className="text-4xl sm:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400">
+            Ready to Connect?
+          </h1>
+          <p className="text-purple-200/70 text-lg">Find meaningful conversations with people worldwide</p>
+        </div>
+
+        <div className="space-y-3">
+          <label className="text-sm font-semibold text-purple-200">Chat with:</label>
+          <div className="flex gap-3 flex-wrap">
+            {['male', 'female', 'any'].map((gender) => (
+              <button
+                key={gender}
+                onClick={() => handleGenderFilter(gender)}
+                className={`px-6 py-2 rounded-full font-medium transition-all duration-200 ${genderFilter === gender ? 'bg-gradient-to-r from-purple-500 to-cyan-400 text-white shadow-lg scale-105' : 'bg-purple-500/10 border border-purple-500/30 text-purple-200 hover:border-purple-500/60 hover:bg-purple-500/15'}`}
+              >
+                {gender === 'any' ? 'Everyone' : gender.charAt(0).toUpperCase() + gender.slice(1)}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <label className="text-sm font-semibold text-purple-200">Interests (optional):</label>
+          <div className="space-y-2">
+            <p className="text-xs text-purple-300/60">Trending:</p>
+            <div className="flex flex-wrap gap-2">
+              {TRENDING_TAGS.map((tag) => (
+                <button
+                  key={tag}
+                  onClick={() => handleToggleInterest(tag)}
+                  className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${selectedInterests.includes(tag) ? 'bg-gradient-to-r from-purple-500 to-cyan-400 text-white shadow-md scale-105' : 'bg-purple-500/10 border border-purple-500/30 text-purple-200 hover:border-purple-500/60 hover:bg-purple-500/15'}`}
+                >
+                  {tag}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={customInterest}
+              onChange={(e) => setCustomInterest(e.target.value)}
+              onKeyPress={(e) => { if (e.key === 'Enter') { handleAddInterest() } }}
+              placeholder="Add custom interest..."
+              className="flex-1 px-4 py-2 rounded-lg bg-purple-500/10 border border-purple-500/30 text-purple-200 placeholder-purple-400/50 focus:outline-none focus:border-purple-500/60 focus:bg-purple-500/15 transition-all"
+            />
+            <button
+              onClick={handleAddInterest}
+              className="px-4 py-2 bg-gradient-to-r from-purple-500 to-cyan-400 hover:from-purple-600 hover:to-cyan-500 text-white font-medium rounded-lg transition-all hover:scale-105"
+            >
+              Add
+            </button>
+          </div>
+          {selectedInterests.length > 0 && (
+            <div className="flex flex-wrap gap-2 pt-2">
+              {selectedInterests.map((interest) => (
+                <div key={interest} className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-purple-500/40 to-cyan-400/40 border border-purple-400/50 text-sm text-purple-100">
+                  <span>{interest}</span>
+                  <button onClick={() => handleRemoveInterest(interest)} className="hover:text-purple-300 transition-colors">
+                    <X size={16} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-4 pt-6">
+          <button
+            onClick={handleStartChat}
+            className="flex-1 px-8 py-4 rounded-xl font-bold text-lg text-white bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600 shadow-lg hover:shadow-purple-500/50 transition-all hover:scale-105 active:scale-95"
+          >
+            💬 Start Text Chat
+          </button>
+          <button
+            onClick={handleStartVideo}
+            className="flex-1 px-8 py-4 rounded-xl font-bold text-lg text-white bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 shadow-lg hover:shadow-orange-500/50 transition-all hover:scale-105 active:scale-95 opacity-75 cursor-not-allowed"
+            disabled
+          >
+            🎥 Start Video Chat
+          </button>
+        </div>
+
+        <div className="text-center text-sm text-purple-300/70 bg-purple-500/5 border border-purple-500/20 rounded-lg p-4">
+          ✨ <strong>Be respectful</strong> and follow our{' '}
+          <a href="/safety" className="text-purple-300 hover:text-purple-200 underline">
+            chat rules
+          </a>
+          . Report any inappropriate behavior.
+        </div>
       </div>
     </div>
-  );
-}
+  )

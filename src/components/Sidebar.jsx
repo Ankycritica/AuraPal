@@ -1,18 +1,24 @@
-import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useState, useEffect } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { Menu, X, Instagram, Twitter } from 'lucide-react'
 
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false)
   const navigate = useNavigate()
+  const location = useLocation()
 
   const identity = JSON.parse(localStorage.getItem('ap-guest-identity') || '{}')
   const isPremium = localStorage.getItem('ap-premium') === 'true'
 
+  // Close sidebar on route change
+  useEffect(() => {
+    setIsOpen(false)
+  }, [location])
+
   const navItems = [
-    { label: 'Chat', icon: '💬', href: '#chat' },
-    { label: 'Friends', icon: '👥', href: '#friends' },
-    { label: 'Messages', icon: '✉️', href: '#messages' }
+    { label: 'Chat', icon: '💬', id: 'chat' },
+    { label: 'Friends', icon: '👥', id: 'friends' },
+    { label: 'Messages', icon: '✉️', id: 'messages' }
   ]
 
   const premiumPerks = [
@@ -50,7 +56,7 @@ export default function Sidebar() {
 
       {/* Sidebar */}
       <aside
-        className={`fixed left-0 top-0 h-screen w-64 lg:w-72 bg-gradient-to-b from-purple-950/30 to-cyan-950/20 border-r border-purple-500/20 p-6 flex flex-col gap-8 z-40 transform transition-transform lg:translate-x-0 ${
+        className={`fixed left-0 top-0 h-screen w-64 bg-gradient-to-b from-slate-900/50 via-purple-900/30 to-slate-900/50 border-r border-purple-500/20 p-6 flex flex-col gap-6 z-40 transform transition-all duration-300 lg:relative lg:translate-x-0 lg:w-72 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
@@ -71,7 +77,7 @@ export default function Sidebar() {
             href="https://instagram.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="p-2 rounded-lg hover:bg-purple-500/20 transition-colors text-purple-300/80 hover:text-purple-300"
+            className="p-2 rounded-lg hover:bg-purple-500/30 transition-all duration-200 text-purple-300/70 hover:text-purple-300 hover:scale-110"
           >
             <Instagram size={20} />
           </a>
@@ -79,7 +85,7 @@ export default function Sidebar() {
             href="https://x.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="p-2 rounded-lg hover:bg-purple-500/20 transition-colors text-purple-300/80 hover:text-purple-300"
+            className="p-2 rounded-lg hover:bg-purple-500/30 transition-all duration-200 text-purple-300/70 hover:text-purple-300 hover:scale-110"
           >
             <Twitter size={20} />
           </a>
@@ -87,7 +93,7 @@ export default function Sidebar() {
             href="https://tiktok.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="p-2 rounded-lg hover:bg-purple-500/20 transition-colors text-purple-300/80 hover:text-purple-300"
+            className="p-2 rounded-lg hover:bg-purple-500/30 transition-all duration-200 text-purple-300/70 hover:text-purple-300 hover:scale-110"
           >
             <span className="text-lg">🎵</span>
           </a>
@@ -95,16 +101,22 @@ export default function Sidebar() {
 
         {/* Navigation */}
         <nav className="flex flex-col gap-2">
-          {navItems.map((item, idx) => (
-            <a
-              key={idx}
-              href={item.href}
-              className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-purple-500/10 transition-colors text-purple-200/80 hover:text-purple-200"
-            >
-              <span className="text-lg">{item.icon}</span>
-              <span className="font-medium">{item.label}</span>
-            </a>
-          ))}
+          {navItems.map((item, idx) => {
+            const isActive = item.id === 'chat'
+            return (
+              <div
+                key={idx}
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
+                  isActive
+                    ? 'bg-gradient-to-r from-purple-600/40 to-cyan-600/30 text-purple-100 border border-purple-500/40'
+                    : 'text-purple-200/70 hover:text-purple-200 hover:bg-purple-500/10'
+                }`}
+              >
+                <span className="text-lg">{item.icon}</span>
+                <span className="font-medium">{item.label}</span>
+              </div>
+            )
+          })}
         </nav>
 
         {/* Premium Promo */}
@@ -147,23 +159,7 @@ export default function Sidebar() {
             </div>
           </div>
         </div>
-
-        {/* Footer Links */}
-        <div className="text-xs text-purple-300/50 space-y-1">
-          <a href="/terms" className="block hover:text-purple-300/80 transition-colors">
-            Terms
-          </a>
-          <a href="/privacy" className="block hover:text-purple-300/80 transition-colors">
-            Privacy
-          </a>
-          <a href="/safety" className="block hover:text-purple-300/80 transition-colors">
-            Safety
-          </a>
-        </div>
       </aside>
-
-      {/* Spacer for desktop */}
-      <div className="hidden lg:block lg:w-72" />
     </>
   )
 }

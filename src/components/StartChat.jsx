@@ -284,3 +284,4 @@ export default function StartChat({ onPaired }) {
       </div>
     </div>
   )
+}

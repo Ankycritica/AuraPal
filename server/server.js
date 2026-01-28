@@ -13,7 +13,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'devsecret'
 
 const app = express()
 app.use(cors({
-  origin: ["https://aurapal.vercel.app", "https://aurapal.org"],
+  origin: ["http://localhost:5173", "http://localhost:5174", "https://aurapal.vercel.app", "https://aurapal.org"],
   methods: ["GET", "POST"],
   credentials: true
 }))
@@ -41,10 +41,10 @@ app.post('/api/auth/logout', (req, res) => {
 const httpServer = createServer(app)
 const io = new Server(httpServer, {
   cors: {
-    origin: ["https://aurapal.vercel.app", "https://aurapal.org"],
+    origin: ["http://localhost:5173", "http://localhost:5174", "https://aurapal.vercel.app", "https://aurapal.org"],
     methods: ["GET", "POST"],
     credentials: true,
-    transports: ["websocket"]
+    transports: ["websocket", "polling"]
   }
 })
 
@@ -53,7 +53,18 @@ const peers = new Map()
 const meta = new Map()
 
 io.on('connection', (socket) => {
+  console.log('Server: socket connected', socket.id)
+
+  socket.on('identify', (info) => {
+    // optional: store clientId if provided by client
+    if (info?.clientId) {
+      const existing = meta.get(socket.id) || {}
+      meta.set(socket.id, { ...existing, clientId: info.clientId })
+    }
+  })
+
   socket.on('find_random', (data) => {
+    console.log('Server: Received find_random from', socket.id, data)
     meta.set(socket.id, { ...data, socketId: socket.id })
     if (!waiting.includes(socket.id)) waiting.push(socket.id)
     tryPair()
@@ -105,21 +116,19 @@ io.on('connection', (socket) => {
   })
 
   socket.on('friend_response', ({ requestId, accept }) => {
-    // For demo, just log
     console.log(`Friend request ${requestId} ${accept ? 'accepted' : 'declined'}`)
   })
 
   socket.on('report_user', ({ userId, reason }) => {
     console.log(`User ${socket.id} reported ${userId} for: ${reason}`)
-    // In production, store in database
   })
 
   socket.on('block_user', ({ userId }) => {
     console.log(`User ${socket.id} blocked ${userId}`)
-    // In production, prevent future pairings
   })
 
-  socket.on('disconnect', () => {
+  socket.on('disconnect', (reason) => {
+    console.log('Server: socket disconnected', socket.id, reason)
     const partnerId = peers.get(socket.id)
     if (partnerId) unpair(socket.id, partnerId)
     const i = waiting.indexOf(socket.id)
@@ -128,7 +137,6 @@ io.on('connection', (socket) => {
   })
 
   function tryPair() {
-    // Sort waiting by premium status (premium first)
     waiting.sort((a, b) => {
       const aMeta = meta.get(a)
       const bMeta = meta.get(b)
@@ -145,7 +153,6 @@ io.on('connection', (socket) => {
       const aMeta = meta.get(a)
       if (!aMeta) continue
 
-      // Find best match for a
       for (let i = 0; i < available.length; i++) {
         const candidate = available[i]
         const cMeta = meta.get(candidate)
@@ -153,10 +160,8 @@ io.on('connection', (socket) => {
 
         let match = false
         if (aMeta.isPremium) {
-          // Premium: only match preferred gender, no fallback
           match = cMeta.gender === aMeta.preferredGender || aMeta.preferredGender === 'Any'
         } else {
-          // Free: prefer preferred gender, fallback to any
           match = cMeta.gender === aMeta.preferredGender || aMeta.preferredGender === 'Any' || cMeta.preferredGender === 'Any'
         }
 
@@ -168,7 +173,6 @@ io.on('connection', (socket) => {
       }
 
       if (!b && !aMeta.isPremium) {
-        // Free user fallback: take any available
         b = available.shift()
       }
 
@@ -178,7 +182,6 @@ io.on('connection', (socket) => {
         peers.set(b, a)
         io.to(a).emit('paired', { roomId: `room_${a}_${b}`, partner: bMeta })
         io.to(b).emit('paired', { roomId: `room_${a}_${b}`, partner: aMeta })
-        // Remove from waiting
         const idxA = waiting.indexOf(a)
         if (idxA >= 0) waiting.splice(idxA, 1)
         const idxB = waiting.indexOf(b)

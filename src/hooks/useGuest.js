@@ -27,7 +27,7 @@ export function useGuest() {
     setGuest(data)
   }, [])
 
-  // Called by onboarding with full identity data
+  // Called by chat with identity data
   const startAsGuest = useCallback((data) => {
     saveGuest(data)
     localStorage.setItem(ONBOARDED_KEY, 'true')

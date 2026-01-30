@@ -9,7 +9,6 @@ import { Features } from './pages/Features'
 import { Pricing } from './pages/Pricing'
 import { SignIn } from './pages/SignIn'
 import { SignUp } from './pages/SignUp'
-import { Onboarding } from './pages/Onboarding'
 import { Dashboard } from './pages/Dashboard'
 import { Profile } from './pages/Profile'
 import { Messages } from './pages/Messages'
@@ -56,9 +55,6 @@ function App() {
             {/* Auth */}
             <Route path="/signin" element={<SignIn />} />
             <Route path="/signup" element={<SignUp />} />
-
-            {/* Onboarding MUST be public - anyone can access */}
-            <Route path="/onboarding" element={<Onboarding />} />
 
             {/* Protected pages */}
             <Route

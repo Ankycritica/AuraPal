@@ -26,7 +26,7 @@ export function SignIn() {
   const { push } = useToast()
 
   // If a protected route redirected here, `location.state.from` holds the original location
-  const redirectTo = location.state?.from?.pathname || '/onboarding'
+  const redirectTo = location.state?.from?.pathname || '/chat'
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -43,7 +43,7 @@ export function SignIn() {
             duration: 3000,
           })
         } catch {}
-        // Navigate back to the original protected route or onboarding
+        // Navigate back to the original protected route or chat
         navigate(redirectTo, { replace: true })
       } else {
         setError(result?.error || 'Invalid email or password')

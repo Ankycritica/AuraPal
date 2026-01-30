@@ -19,6 +19,7 @@ export function Dashboard() {
   return (
     <div className="py-8 px-4 sm:py-12" style={{ background: 'var(--surface)' }}>
       <div className="mx-auto max-w-7xl">
+        
         {/* Welcome Section */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold" style={{ color: 'var(--text)' }}>
@@ -31,33 +32,31 @@ export function Dashboard() {
 
         {/* Main Grid */}
         <div className="grid gap-6 md:grid-cols-3">
+          
           {/* Left Column */}
           <div className="md:col-span-2 space-y-6">
-            {/* Suggested Connections */}
-            <Card>
-              <CardHeader>
-                <CardTitle style={{ color: 'var(--text)' }}>
-                  Suggested Connections
-                </CardTitle>
-                <CardDescription style={{ color: 'var(--muted)' }}>
-                  People who share your interests and values
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {suggestedMatches.length > 0 ? (
+
+            {/* Suggested Connections — ONLY show if real matches exist */}
+            {suggestedMatches.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle style={{ color: 'var(--text)' }}>
+                    Suggested Connections
+                  </CardTitle>
+                  <CardDescription style={{ color: 'var(--muted)' }}>
+                    People who share your interests and values
+                  </CardDescription>
+                </CardHeader>
+
+                <CardContent>
                   <div className="space-y-4">
                     {suggestedMatches.map((match, index) => (
                       <MatchCard key={match.userId || index} match={match} />
                     ))}
                   </div>
-                ) : (
-                  <p className="text-center py-8" style={{ color: 'var(--muted)' }}>
-                    No suggested matches yet. Complete your profile to get better
-                    suggestions!
-                  </p>
-                )}
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Recent Activity */}
             <Card>
@@ -79,6 +78,7 @@ export function Dashboard() {
 
           {/* Right Column */}
           <div className="space-y-6">
+
             {/* Quick Actions */}
             <Card>
               <CardHeader>
@@ -91,12 +91,14 @@ export function Dashboard() {
                     Messages
                   </Link>
                 </Button>
+
                 <Button asChild className="w-full" variant="outline">
                   <Link to="/profile">
                     <User className="mr-2 h-4 w-4" />
                     Edit Profile
                   </Link>
                 </Button>
+
                 <Button asChild className="w-full" variant="outline">
                   <Link to="/settings">
                     <Settings className="mr-2 h-4 w-4" />
@@ -124,6 +126,7 @@ export function Dashboard() {
                     You're browsing as a guest. Sign up to save your profile and
                     connect with others.
                   </p>
+
                   <Button
                     asChild
                     size="sm"

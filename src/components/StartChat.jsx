@@ -35,8 +35,13 @@ export default function StartChat({ onPaired }) {
 
   useEffect(() => {
     if (!identity.guestName) {
-      console.error('Identity missing, redirecting to onboarding')
-      navigate('/onboarding')
+      console.log('No identity found, creating guest identity')
+      // Create a simple guest identity if none exists
+      const guestIdentity = {
+        guestName: `Guest${Math.random().toString(36).substr(2, 9)}`,
+        preferredGender: 'any'
+      }
+      localStorage.setItem('ap-guest-identity', JSON.stringify(guestIdentity))
       return
     }
     console.log('Loaded identity:', identity)
@@ -118,9 +123,13 @@ export default function StartChat({ onPaired }) {
   const handleStartChat = () => {
     console.log('Start Text Chat button clicked')
     if (!identity.guestName) {
-      console.error('Identity missing, redirecting to onboarding')
-      navigate('/onboarding')
-      return
+      console.log('No identity found, creating guest identity')
+      // Create a simple guest identity if none exists
+      const guestIdentity = {
+        guestName: `Guest${Math.random().toString(36).substr(2, 9)}`,
+        preferredGender: 'any'
+      }
+      localStorage.setItem('ap-guest-identity', JSON.stringify(guestIdentity))
     }
     setSearching(true)
     try {

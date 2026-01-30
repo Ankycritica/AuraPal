@@ -21,7 +21,7 @@ export function SignUp() {
     try {
       const result = await signUp(email, password, displayName)
       if (result.success) {
-        navigate('/onboarding')
+        navigate('/chat')
       } else {
         setError('Something went wrong. Please try again.')
       }

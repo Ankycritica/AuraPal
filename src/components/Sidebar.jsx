@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Menu, X, Instagram, Twitter } from 'lucide-react'
+import { Menu, X } from 'lucide-react'
 
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false)
@@ -69,34 +69,6 @@ export default function Sidebar() {
             </h1>
             <p className="text-xs text-purple-300/60">Connect Anonymously</p>
           </div>
-        </div>
-
-        {/* Social Icons */}
-        <div className="flex gap-3">
-          <a
-            href="https://instagram.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="p-2 rounded-lg hover:bg-purple-500/30 transition-all duration-200 text-purple-300/70 hover:text-purple-300 hover:scale-110"
-          >
-            <Instagram size={20} />
-          </a>
-          <a
-            href="https://x.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="p-2 rounded-lg hover:bg-purple-500/30 transition-all duration-200 text-purple-300/70 hover:text-purple-300 hover:scale-110"
-          >
-            <Twitter size={20} />
-          </a>
-          <a
-            href="https://tiktok.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="p-2 rounded-lg hover:bg-purple-500/30 transition-all duration-200 text-purple-300/70 hover:text-purple-300 hover:scale-110"
-          >
-            <span className="text-lg">🎵</span>
-          </a>
         </div>
 
         {/* Navigation */}

@@ -15,7 +15,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '../components/ui/dropdown-menu'
-import { useToast } from '../components/ui/Toast'
+import { useToast } from '../components/ui/use-toast'
 
 export function Messages() {
   const { conversationId } = useParams()

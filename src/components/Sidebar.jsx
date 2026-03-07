@@ -37,12 +37,12 @@ export default function Sidebar() {
       {/* Mobile Toggle */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed top-4 left-4 z-50 lg:hidden p-2 rounded-lg hover:bg-purple-500/20 transition-colors"
+        className="fixed top-4 left-4 z-50 lg:hidden p-2 rounded-lg hover:bg-white/10 transition-colors"
       >
         {isOpen ? (
-          <X size={24} className="text-purple-400" />
+          <X size={24} className="text-muted" />
         ) : (
-          <Menu size={24} className="text-purple-400" />
+          <Menu size={24} className="text-muted" />
         )}
       </button>
 
@@ -56,18 +56,17 @@ export default function Sidebar() {
 
       {/* Sidebar */}
       <aside
-        className={`fixed left-0 top-0 h-screen w-64 bg-gradient-to-b from-slate-900/50 via-purple-900/30 to-slate-900/50 border-r border-purple-500/20 p-6 flex flex-col gap-6 z-40 transform transition-all duration-300 lg:relative lg:translate-x-0 lg:w-72 ${
-          isOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
+        className={`fixed left-0 top-0 h-screen w-64 bg-zinc-900 border-r border-white/5 p-6 flex flex-col gap-6 z-40 transform transition-all duration-300 lg:relative lg:translate-x-0 lg:w-72 ${isOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
       >
         {/* Logo */}
         <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
           <div className="text-3xl">🌐</div>
           <div className="flex flex-col">
-            <h1 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400">
+            <h1 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-yellow-300">
               AuraPal
             </h1>
-            <p className="text-xs text-purple-300/60">Connect Anonymously</p>
+            <p className="text-xs text-zinc-500">Connect Anonymously</p>
           </div>
         </div>
 
@@ -78,11 +77,10 @@ export default function Sidebar() {
             return (
               <div
                 key={idx}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
-                  isActive
-                    ? 'bg-gradient-to-r from-purple-600/40 to-cyan-600/30 text-purple-100 border border-purple-500/40'
-                    : 'text-purple-200/70 hover:text-purple-200 hover:bg-purple-500/10'
-                }`}
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 cursor-pointer ${isActive
+                    ? 'bg-white/10 text-white border border-white/5'
+                    : 'text-zinc-400 hover:text-white hover:bg-white/5'
+                  }`}
               >
                 <span className="text-lg">{item.icon}</span>
                 <span className="font-medium">{item.label}</span>
@@ -95,21 +93,20 @@ export default function Sidebar() {
         {!isPremium && (
           <div className="flex-1 flex flex-col gap-4">
             <div
-              className="bg-gradient-to-br from-purple-600/30 to-orange-500/20 border border-orange-400/30 rounded-xl p-4 flex flex-col gap-3"
+              className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 flex flex-col gap-3 hover:bg-amber-500/20 transition-colors cursor-pointer"
               onClick={handlePremium}
-              style={{ cursor: 'pointer' }}
             >
-              <p className="text-sm font-bold text-orange-300">✨ Get Premium</p>
-              <ul className="text-xs space-y-2 text-purple-200/70">
+              <p className="text-sm font-bold text-amber-300">✨ Get Premium</p>
+              <ul className="text-xs space-y-2 text-zinc-400">
                 {premiumPerks.map((perk, idx) => (
                   <li key={idx} className="flex items-start gap-2">
-                    <span className="text-orange-400 mt-0.5">•</span>
-                    <span>{perk}</span>
+                    <span className="text-amber-500 mt-0.5">•</span>
+                    <span className="text-zinc-200">{perk}</span>
                   </li>
                 ))}
               </ul>
               <button
-                className="mt-2 w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white text-sm font-bold py-2 rounded-lg transition-all hover:scale-105"
+                className="mt-2 w-full bg-gradient-to-r from-amber-500 to-yellow-400 text-black text-sm font-bold py-2 rounded-lg hover:scale-105 transition-all shadow-lg"
               >
                 Upgrade Now
               </button>
@@ -118,14 +115,14 @@ export default function Sidebar() {
         )}
 
         {/* User Identity */}
-        <div className="mt-auto pt-6 border-t border-purple-500/20">
-          <div className="flex items-center gap-3 p-3 rounded-lg bg-purple-500/5 hover:bg-purple-500/10 transition-colors cursor-pointer">
+        <div className="mt-auto pt-6 border-t border-white/5">
+          <div className="flex items-center gap-3 p-3 rounded-lg bg-zinc-800 hover:bg-zinc-750 transition-colors cursor-pointer border border-transparent hover:border-white/10">
             <div className="text-2xl">{identity.avatar || '😊'}</div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-purple-200 truncate">
+              <p className="text-sm font-semibold text-white truncate">
                 {identity.guestName || 'Guest'}
               </p>
-              <p className="text-xs text-purple-300/60">
+              <p className="text-xs text-zinc-400">
                 {isPremium ? '⭐ Premium' : 'Free Account'}
               </p>
             </div>

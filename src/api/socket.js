@@ -5,6 +5,18 @@ const DEFAULT_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:3000'
 let _socket = null
 let pendingListeners = []
 
+// ─── Stable session ID ───────────────────────────────────────────────────────
+function getOrCreateSessionId() {
+  let sid = localStorage.getItem('ap-session-id')
+  if (!sid) {
+    sid = `sess_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`
+    localStorage.setItem('ap-session-id', sid)
+  }
+  return sid
+}
+
+export const SESSION_ID = getOrCreateSessionId()
+
 export function getSocket() {
   return _socket
 }
@@ -16,34 +28,39 @@ function applyPendingListeners() {
 }
 
 export function connect(identity) {
-  if (_socket) return _socket
+  if (_socket) return _socket   // always reuse — never create a second socket
 
   _socket = io(DEFAULT_URL, {
     transports: ['websocket', 'polling'],
-    withCredentials: true
+    withCredentials: true,
+    reconnection: true,
+    reconnectionAttempts: 10,
+    reconnectionDelay: 2000,
+    reconnectionDelayMax: 10000,
   })
 
   _socket.on('connect', () => {
-    console.log('Socket connected', _socket.id)
+    console.log('[Socket] connected id:', _socket.id)
     applyPendingListeners()
     try {
       _socket.emit('identify', {
+        sessionId: SESSION_ID,
         guestName: identity?.guestName || identity?.name,
         country: identity?.country,
         age: identity?.age,
-        gender: identity?.gender
+        gender: identity?.gender,
       })
     } catch (e) {
-      console.warn('identify emit failed', e)
+      console.warn('[Socket] identify emit failed', e)
     }
   })
 
   _socket.on('connect_error', (err) => {
-    console.warn('socket connect_error', err)
+    console.warn('[Socket] connect_error', err.message)
   })
 
   _socket.on('disconnect', (reason) => {
-    console.warn('socket disconnected', reason)
+    console.warn('[Socket] disconnected', reason)
   })
 
   return _socket

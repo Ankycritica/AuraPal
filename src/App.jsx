@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Layout } from './components/Layout'
 import { ProtectedRoute } from './components/ProtectedRoute'
-import { ToastProvider } from './components/ui/Toast'
+import { ToastProvider } from './components/ui/use-toast'
 import { Home } from './pages/Home'
 import { About } from './pages/About'
 import { Features } from './pages/Features'
@@ -17,25 +17,12 @@ import Chat from './pages/Chat'
 import { NotFound } from './pages/NotFound'
 import ChatTest from './pages/ChatTest'
 import { Settings } from './pages/Settings'
+import { PremiumCheckout } from './pages/PremiumCheckout'
 
 function App() {
   useEffect(() => {
-    const root = document.documentElement
-    root.style.setProperty('--brand-start', '#6d28d9')
-    root.style.setProperty('--brand-end', '#06b6d4')
-    root.style.setProperty(
-      '--brand-gradient',
-      'linear-gradient(90deg,var(--brand-start),var(--brand-end))'
-    )
-    root.style.setProperty('--accent', '#7dd3fc')
-    root.style.setProperty('--bg-dark', '#071026')
-    root.style.setProperty('--surface', '#0b1220')
-    root.style.setProperty('--muted', '#9aa6c7')
-    root.style.setProperty('--text', '#e6eef9')
-    root.style.setProperty('--link', '#9be7ff')
-
-    document.body.style.background = 'var(--bg-dark)'
-    document.body.style.color = 'var(--text)'
+    document.body.style.background = '#09090b'
+    document.body.style.color = '#fafafa'
   }, [])
 
   return (
@@ -55,6 +42,8 @@ function App() {
             {/* Auth */}
             <Route path="/signin" element={<SignIn />} />
             <Route path="/signup" element={<SignUp />} />
+
+            <Route path="/checkout" element={<PremiumCheckout />} />
 
             {/* Protected pages */}
             <Route

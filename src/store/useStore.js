@@ -213,6 +213,21 @@ const useAuthStore = create((set, get) => ({
     })
   },
 
+  updateDisplayName: (name) => {
+    const trimmed = name?.trim() ?? ''
+    if (trimmed.length < 3 || trimmed.length > 20) return { success: false, error: 'Name must be 3–20 characters.' }
+    const bad = /\b(fuck|shit|ass|bitch|nigger|faggot)\b/i
+    if (bad.test(trimmed)) return { success: false, error: 'Name contains disallowed words.' }
+    set((state) => {
+      if (!state.user) return {}
+      const updatedUser = { ...state.user, displayName: trimmed, avatar: generateAvatarDataUrl(trimmed) }
+      const newState = { ...state, user: updatedUser }
+      persistStorage.setItem('aurapal-auth', newState)
+      return newState
+    })
+    return { success: true }
+  },
+
   checkSession: () => {
     const { session } = get()
     if (!session) return false
@@ -260,7 +275,7 @@ if (persistedAuth && (persistedAuth.user || persistedAuth.isAuthenticated)) {
 useAuthStore.subscribe((state) => {
   try {
     persistStorage.setItem('aurapal-auth', state)
-  } catch {}
+  } catch { }
 })
 
 /**
@@ -293,10 +308,10 @@ const useMessageStore = create((set, get) => ({
     })
   },
 
-  simulateIncomingMessage: () => {},
-  blockUser: () => {},
-  unblockUser: () => {},
-  reportUser: () => {},
+  simulateIncomingMessage: () => { },
+  blockUser: () => { },
+  unblockUser: () => { },
+  reportUser: () => { },
 }))
 
 /**
@@ -310,4 +325,26 @@ const useMatchStore = create((set) => ({
   setAllUsers: (users) => set({ allUsers: users }),
 }))
 
-export { useAuthStore, useMessageStore, useMatchStore }
+/**
+ * FRIEND STORE
+ */
+const useFriendStore = create((set) => ({
+  friends: [],          // [{ id, displayName, avatar }]
+  incoming: [],         // [{ requestId, fromUserId, fromName, fromAvatar }]
+
+  addFriend: (friend) => set((s) => {
+    if (s.friends.some(f => f.id === friend.id)) return {}
+    return { friends: [...s.friends, friend] }
+  }),
+
+  removeFriend: (id) => set((s) => ({ friends: s.friends.filter(f => f.id !== id) })),
+
+  addIncoming: (req) => set((s) => {
+    if (s.incoming.some(r => r.requestId === req.requestId)) return {}
+    return { incoming: [...s.incoming, req] }
+  }),
+
+  removeIncoming: (requestId) => set((s) => ({ incoming: s.incoming.filter(r => r.requestId !== requestId) })),
+}))
+
+export { useAuthStore, useMessageStore, useMatchStore, useFriendStore }

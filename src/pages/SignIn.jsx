@@ -12,7 +12,7 @@ import {
   CardTitle,
 } from '../components/ui/card'
 import { useAuthStore } from '../store/useStore'
-import { useToast } from '../components/ui/Toast'
+import { useToast } from '../components/ui/use-toast'
 
 export function SignIn() {
   const [email, setEmail] = useState('')

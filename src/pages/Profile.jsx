@@ -15,7 +15,7 @@ import { InterestTagInput } from '../components/InterestTagInput'
 import { PrivacyToggle } from '../components/PrivacyToggle'
 import { Avatar } from '../components/ui/avatar'
 import { useAuthStore } from '../store/useStore'
-import { useToast } from '../components/ui/Toast'
+import { useToast } from '../components/ui/use-toast'
 
 export function Profile() {
   const { user, updateProfile } = useAuthStore()

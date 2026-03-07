@@ -8,24 +8,30 @@ export default {
   theme: {
     extend: {
       colors: {
-        aurapal: {
-          accent: '#7C3AED',
-          warm: '#FBBF24',
-          dark: '#0F172A',
-          muted: '#94A3B8',
-        },
+        // AuraPal brand tokens — mapped to CSS variables set in theme.css / App.jsx
+        'ap-accent': '#c29543',
+        'ap-warm': '#fcf1d8',
+        'ap-dark': '#09090b',
+        'ap-muted': '#8b8d98',
+        'surface': '#121214',
+        'text': '#fafafa',
+        'muted': '#a1a1aa',
+        'brand-start': '#d4af37',
+        'on-brand': '#09090b',
+
+        // Existing Radix/shadcn tokens
         primary: {
-          DEFAULT: '#7C3AED',
-          50: '#F5F3FF',
-          100: '#EDE9FE',
-          200: '#DDD6FE',
-          300: '#C4B5FD',
-          400: '#A78BFA',
-          500: '#8B5CF6',
-          600: '#7C3AED',
-          700: '#6D28D9',
-          800: '#5B21B6',
-          900: '#4C1D95',
+          DEFAULT: '#d4af37',
+          50: '#fdfaec',
+          100: '#faf3d0',
+          200: '#f5e598',
+          300: '#f0d360',
+          400: '#e9bc2c',
+          500: '#d4af37',
+          600: '#b5922e',
+          700: '#8f7024',
+          800: '#6a5019',
+          900: '#4c3810',
         },
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
@@ -57,6 +63,9 @@ export default {
           foreground: 'hsl(var(--popover-foreground))',
         },
       },
+      backgroundImage: {
+        'brand-gradient': 'linear-gradient(135deg, #d4af37, #f3e5ab)',
+      },
       borderRadius: {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
@@ -73,4 +82,5 @@ export default {
   },
   plugins: [],
 }
+
 

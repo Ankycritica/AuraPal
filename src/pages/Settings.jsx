@@ -11,7 +11,7 @@ import {
 import { Button } from '../components/ui/button'
 import { Toggle } from '../components/ui/toggle'
 import { useAuthStore } from '../store/useStore'
-import { useToast } from '../components/ui/Toast'
+import { useToast } from '../components/ui/use-toast'
 
 export function Settings() {
   const { user, updateProfile, signOut } = useAuthStore()

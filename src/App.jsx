@@ -18,6 +18,7 @@ import { NotFound } from './pages/NotFound'
 import ChatTest from './pages/ChatTest'
 import { Settings } from './pages/Settings'
 import { PremiumCheckout } from './pages/PremiumCheckout'
+import FriendRequestListener from './components/FriendRequestListener'
 
 function App() {
   useEffect(() => {
@@ -28,12 +29,18 @@ function App() {
   return (
     <ToastProvider>
       <BrowserRouter>
+        <FriendRequestListener />
         <Layout>
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/omegle-alternative" element={<Home />} />
+            <Route path="/random-chat" element={<Home />} />
+            <Route path="/chat-with-strangers" element={<Home />} />
+            <Route path="/anonymous-chat" element={<Home />} />
             <Route path="/about" element={<About />} />
             <Route path="/features" element={<Features />} />
             <Route path="/pricing" element={<Pricing />} />
+            <Route path="/safety" element={<Safety />} />
 
             {/* Chat system entry - NO PROTECTION, user can enter anytime */}
             <Route path="/chat" element={<Chat />} />

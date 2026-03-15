@@ -7,6 +7,12 @@
   --ap-warm: #fcf1d8;     /* Light gold/champagne */
   --ap-dark: #09090b;     /* Very deep slate/black */
   --ap-muted: #8b8d98;    /* Muted sophisticated gray */
+  
+  /* New Modern Startup Palette */
+  --ap-indigo: #4F46E5;
+  --ap-emerald: #22C55E;
+  --ap-light-bg: #F9FAFB;
+  --ap-dark-text: #111827;
 
   /* Core tokens */
   --surface: #121214;          /* Dark background surface */

@@ -2,12 +2,14 @@ import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import * as socketApi from '../api/socket'
 import { useToast } from './ui/use-toast'
+import { useAuthStore } from '../store/useStore'
 
 // ─── Emoji reactions ───────────────────────────────────────────────────────
 const REACTIONS = ['👍', '😂', '❤️', '😮', '👏', '🔥']
 
 export default function TextChat({ config, onEnd }) {
     const { toast } = useToast()
+    const { isAuthenticated, isGuest } = useAuthStore()
 
     const [messages, setMessages] = useState([])
     const [input, setInput] = useState('')
@@ -142,6 +144,21 @@ export default function TextChat({ config, onEnd }) {
         }
     }
 
+    // ─── friend request ───────────────────────────────────────────────────────
+    const handleAddFriend = useCallback(() => {
+        if (!isAuthenticated || isGuest) {
+            toast({ title: 'Sign in required', description: 'Please sign in to add friends.', variant: 'destructive' })
+            return
+        }
+        if (!peerInfo?.id) return
+        const s = getSocket()
+        const { user } = useAuthStore.getState()
+        const fromMeta = { id: user.id, displayName: user.displayName, avatar: user.avatar }
+
+        s.emit('friend_request', { toId: peerInfo.id, fromMeta })
+        toast({ title: 'Friend Request Sent', description: `Sent to ${peerInfo.guestName || 'Stranger'}` })
+    }, [isAuthenticated, isGuest, peerInfo, getSocket, toast])
+
     // ─── skip ──────────────────────────────────────────────────────────────────
     const handleSkip = useCallback(() => {
         const s = getSocket()
@@ -200,8 +217,8 @@ export default function TextChat({ config, onEnd }) {
             <div className="flex items-center justify-between px-5 py-3.5 bg-zinc-900 border-b border-white/10">
                 <div className="flex items-center gap-3">
                     <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${status === 'chatting' ? 'bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]' :
-                            status === 'searching' ? 'bg-amber-400 animate-pulse' :
-                                'bg-zinc-600'
+                        status === 'searching' ? 'bg-amber-400 animate-pulse' :
+                            'bg-zinc-600'
                         }`} />
                     <div>
                         <p className="text-sm font-semibold text-white">
@@ -215,6 +232,16 @@ export default function TextChat({ config, onEnd }) {
                 </div>
 
                 <div className="flex items-center gap-2">
+                    {/* Add Friend — available only while chatting */}
+                    {status === 'chatting' && (
+                        <button
+                            onClick={handleAddFriend}
+                            className="px-3 py-1.5 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-400 text-xs font-semibold border border-emerald-500/30 transition-all active:scale-95 flex items-center gap-1"
+                        >
+                            <span>+</span> Friend
+                        </button>
+                    )}
+
                     {/* Skip — available while searching OR chatting */}
                     {(status === 'chatting' || status === 'searching') && (
                         <button
@@ -233,47 +260,62 @@ export default function TextChat({ config, onEnd }) {
                 </div>
             </div>
 
-            {/* Messages */}
-            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-2">
-                <AnimatePresence initial={false}>
-                    {messages.map((msg) => {
-                        const isMe = msg.from === socketId
-                        if (msg.system) return (
-                            <motion.div key={msg.id} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} className="flex justify-center">
-                                <span className="text-xs text-zinc-500 bg-zinc-800/60 px-3 py-1 rounded-full border border-white/5">
-                                    {msg.text}
-                                </span>
+            {/* Content Area */}
+            <div className="flex-1 overflow-y-auto px-4 py-4 relative">
+                <AnimatePresence mode="wait">
+                    {status === 'searching' ? (
+                        <motion.div 
+                            key="searching" 
+                            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} 
+                            className="absolute inset-0 flex flex-col items-center justify-center bg-zinc-900/80 backdrop-blur-sm z-10"
+                        >
+                            <motion.div animate={{ scale: [1, 1.2, 1], opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1.5 }} className="w-20 h-20 bg-ap-indigo/10 rounded-full flex items-center justify-center mb-6">
+                                <div className="w-10 h-10 bg-ap-indigo rounded-full shadow-[0_0_20px_rgba(79,70,229,0.5)]" />
                             </motion.div>
-                        )
+                            <h3 className="text-xl font-extrabold text-white mb-2 tracking-tight">Finding someone interesting...</h3>
+                            <p className="text-sm text-zinc-400 font-medium">Searching globally 🌍</p>
+                        </motion.div>
+                    ) : (
+                        <motion.div key="chat" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-3 h-full pb-4">
+                            {messages.map((msg) => {
+                                const isMe = msg.from === socketId
+                                if (msg.system) return (
+                                    <motion.div key={msg.id} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} className="flex justify-center my-4">
+                                        <span className="text-[11px] font-semibold tracking-wider uppercase text-zinc-500 bg-zinc-800/60 px-4 py-1.5 rounded-full border border-white/5">
+                                            {msg.text}
+                                        </span>
+                                    </motion.div>
+                                )
 
-                        const hasReactions = msg.reactions && Object.keys(msg.reactions).length > 0
-                        return (
-                            <motion.div
-                                key={msg.id}
-                                initial={{ opacity: 0, y: 6, scale: 0.97 }}
-                                animate={{ opacity: 1, y: 0, scale: 1 }}
-                                className={`flex ${isMe ? 'justify-end' : 'justify-start'} group`}
-                            >
-                                <div className="relative max-w-[75%]">
-                                    <div
-                                        className={`relative px-4 py-2.5 rounded-2xl text-sm leading-relaxed shadow-md cursor-pointer select-text ${isMe
-                                                ? 'bg-gradient-to-br from-amber-500 to-yellow-400 text-black rounded-br-sm'
-                                                : 'bg-zinc-800 text-zinc-100 border border-white/5 rounded-bl-sm'
-                                            }`}
-                                        onDoubleClick={() => setShowReactions(showReactions === msg.id ? null : msg.id)}
+                                const hasReactions = msg.reactions && Object.keys(msg.reactions).length > 0
+                                return (
+                                    <motion.div
+                                        key={msg.id}
+                                        initial={{ opacity: 0, y: 6, scale: 0.97 }}
+                                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                                        className={`flex ${isMe ? 'justify-end' : 'justify-start'} group`}
                                     >
-                                        {msg.text}
-                                    </div>
+                                        <div className="relative max-w-[75%]">
+                                            <div
+                                                className={`relative px-4 py-3 rounded-2xl text-[15px] leading-relaxed shadow-sm cursor-pointer select-text ${isMe
+                                                    ? 'bg-ap-indigo text-white rounded-br-sm shadow-[0_4px_14px_rgba(79,70,229,0.3)]'
+                                                    : 'bg-zinc-800 text-zinc-100 border border-white/5 rounded-bl-sm shadow-black/20'
+                                                    }`}
+                                                onDoubleClick={() => setShowReactions(showReactions === msg.id ? null : msg.id)}
+                                            >
+                                                {msg.text}
+                                            </div>
 
-                                    {hasReactions && (
-                                        <div className={`flex gap-1 mt-1 ${isMe ? 'justify-end' : 'justify-start'}`}>
-                                            {Object.entries(msg.reactions).map(([emoji, count]) => (
-                                                <span key={emoji} className="text-xs bg-zinc-800 border border-white/10 rounded-full px-2 py-0.5">
-                                                    {emoji}{count > 1 ? ` ${count}` : ''}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    )}
+                                            {hasReactions && (
+                                                <div className={`flex gap-1 mt-1.5 ${isMe ? 'justify-end' : 'justify-start'}`}>
+                                                    {Object.entries(msg.reactions).map(([emoji, count]) => (
+                                                        <span key={emoji} className="text-[11px] font-bold bg-zinc-800 border border-white/10 text-white rounded-md px-2 py-0.5 shadow-sm">
+                                                            {emoji}{count > 1 ? ` ${count}` : ''}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            )}
+
 
                                     <AnimatePresence>
                                         {showReactions === msg.id && (
@@ -299,7 +341,9 @@ export default function TextChat({ config, onEnd }) {
                             </motion.div>
                         )
                     })}
-                </AnimatePresence>
+                </motion.div>
+            )}
+        </AnimatePresence>
 
                 <AnimatePresence>
                     {isTyping && (

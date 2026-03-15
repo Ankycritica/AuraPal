@@ -6,17 +6,24 @@ import TextChat from '../components/TextChat'
 import VideoChat from '../components/VideoChat'
 
 export default function Chat() {
-  const [chatMode, setChatMode] = useState(null)   // null | 'text' | 'video'
-  const [matchConfig, setMatchConfig] = useState(null)
+  const [chatMode, setChatMode] = useState(() => sessionStorage.getItem('ap-chat-mode'))
+  const [matchConfig, setMatchConfig] = useState(() => {
+    try { return JSON.parse(sessionStorage.getItem('ap-match-config')) } catch { return null }
+  })
 
   const handleStartChat = useCallback(({ mode, genderPreference, interests, isPremium }) => {
+    const config = { genderPreference, interests, isPremium }
     setChatMode(mode)
-    setMatchConfig({ genderPreference, interests, isPremium })
+    setMatchConfig(config)
+    sessionStorage.setItem('ap-chat-mode', mode)
+    sessionStorage.setItem('ap-match-config', JSON.stringify(config))
   }, [])
 
   const handleEndChat = useCallback(() => {
     setChatMode(null)
     setMatchConfig(null)
+    sessionStorage.removeItem('ap-chat-mode')
+    sessionStorage.removeItem('ap-match-config')
   }, [])
 
   return (
@@ -62,8 +69,8 @@ export default function Chat() {
                       }, 100)
                     }}
                     className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${chatMode === 'text'
-                        ? 'bg-zinc-600 text-white shadow'
-                        : 'text-zinc-400 hover:text-white'
+                      ? 'bg-zinc-600 text-white shadow'
+                      : 'text-zinc-400 hover:text-white'
                       }`}
                   >
                     💬 Text
@@ -76,8 +83,8 @@ export default function Chat() {
                       }, 100)
                     }}
                     className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${chatMode === 'video'
-                        ? 'bg-zinc-600 text-white shadow'
-                        : 'text-zinc-400 hover:text-white'
+                      ? 'bg-zinc-600 text-white shadow'
+                      : 'text-zinc-400 hover:text-white'
                       }`}
                   >
                     🎥 Video

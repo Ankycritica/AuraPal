@@ -20,6 +20,11 @@ export default {
         'on-brand': '#09090b',
 
         // Existing Radix/shadcn tokens
+        'ap-indigo': '#4F46E5',
+        'ap-emerald': '#22C55E',
+        'ap-darktext': '#111827',
+        'ap-lightbg': '#F9FAFB',
+
         primary: {
           DEFAULT: '#d4af37',
           50: '#fdfaec',

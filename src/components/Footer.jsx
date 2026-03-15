@@ -1,91 +1,110 @@
-// src/components/Footer.jsx
+import React from 'react'
 import { Link } from 'react-router-dom'
+import { motion } from 'framer-motion'
 
 export function Footer() {
   return (
-    <footer
-      className="w-full border-t mt-12"
-      style={{
-        background: 'var(--surface)',
-        borderColor: 'rgba(255,255,255,0.06)',
-      }}
-    >
-      <div className="mx-auto max-w-7xl px-4 py-8 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-        {/* Brand */}
-        <div className="flex items-center gap-3">
-          <div
-            className="flex h-10 w-10 items-center justify-center rounded-full"
-            style={{ background: 'linear-gradient(90deg, var(--brand-start), var(--brand-gradient))' }}
-          >
-            <span style={{ color: 'var(--on-brand, #fff)', fontWeight: 700 }}>A</span>
-          </div>
-          <span style={{ color: 'var(--text)', fontWeight: 700 }}>AuraPal</span>
-        </div>
-
-        {/* Footer nav */}
-        <nav className="flex flex-wrap gap-4 text-sm" aria-label="Footer">
-          <Link to="/about" style={{ color: 'var(--muted)' }} className="hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-start)]">
-            About
-          </Link>
-          <Link to="/privacy" style={{ color: 'var(--muted)' }} className="hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-start)]">
-            Privacy
-          </Link>
-          <Link to="/terms" style={{ color: 'var(--muted)' }} className="hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-start)]">
-            Terms
-          </Link>
-          <Link to="/contact" style={{ color: 'var(--muted)' }} className="hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-start)]">
-            Contact
-          </Link>
-        </nav>
-
-        {/* Legal */}
-        <div className="text-xs" style={{ color: 'var(--muted)' }}>
-          © {new Date().getFullYear()} AuraPal. All rights reserved.
-        </div>
+    <footer className="relative pt-12 pb-8 overflow-hidden">
+      {/* 🌌 Design Requirements: Dark gradient background (deep navy → teal) */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[#020617] via-[#0f172a] to-[#0d9488]/20 z-0" />
+      
+      {/* 🌌 Design Requirements: Small star-like dots scattered across the background */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        {[...Array(60)].map((_, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: Math.random() * 0.5 }}
+            animate={{ opacity: [0.2, 0.6, 0.2] }}
+            transition={{ 
+              duration: 3 + Math.random() * 5, 
+              repeat: Infinity, 
+              delay: Math.random() * 10 
+            }}
+            className="absolute bg-white rounded-full"
+            style={{ 
+              width: Math.random() * 1.5 + 'px', 
+              height: Math.random() * 1.5 + 'px',
+              top: Math.random() * 100 + '%', 
+              left: Math.random() * 100 + '%' 
+            }}
+          />
+        ))}
       </div>
 
-      {/* Support Section */}
-      <div className="mx-auto max-w-7xl px-4 pb-8">
-        <div className="flex flex-col items-center gap-4">
-          <p className="text-sm" style={{ color: 'var(--muted)' }}>
-            Support AuraPal — Every contribution helps keep it free and ad-free.
-          </p>
-          <div className="flex gap-3">
-            <a
-              href="https://paypal.me/AnkitD538"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Donate via PayPal"
-              className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-full border hover:bg-white hover:bg-opacity-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-start)] transition-colors"
-              style={{
-                color: 'var(--text)',
-                borderColor: 'var(--brand-start)',
-                background: 'rgba(255,255,255,0.05)'
-              }}
-            >
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.622 1.566 1.035.974 1.481 2.408 1.34 3.948-.173 1.92-.754 3.337-1.622 4.366-.912 1.084-2.262 1.698-4.003 1.698h-3.711l.614 3.632c.062.375.497.564.852.283l.95-.779s-.059-.087-.059-.087c.881-.661 1.52-1.74 1.682-3.027.511-4.056-.003-6.634-4.22-6.634h-1.827l-1.52 9.055h1.92c2.587 0 4.63.58 5.927 1.715 1.286 1.126 1.782 2.88 1.496 4.797-.336 2.254-1.52 3.91-3.237 4.666-1.72.756-3.953.67-6.15-.24-1.64-.679-2.853-1.925-3.568-3.552-.66-1.5-.864-3.215-.498-4.907l.197-1.084h-1.827l-.46 2.726zm6.482-9.828h3.733c.904 0 1.592-.078 2.15-.233.562-.157.95-.396 1.167-.717.215-.321.301-.708.254-1.16-.09-.825-.531-1.458-1.324-1.8-.793-.342-1.858-.393-3.106-.14-.928.187-1.822.683-2.511 1.382-.688.7-1.07 1.603-1.07 2.509 0 .9.382 1.8 1.07 2.509.689.699 1.583 1.195 2.511 1.382 1.248.253 2.313.202 3.106-.14.793-.342 1.234-.975 1.324-1.8.047-.452-.039-.839-.254-1.16-.217-.321-.605-.56-1.167-.717-.558-.155-1.246-.233-2.15-.233h-3.733l.546-3.233zm-6.172 9.828h-1.827l.46-2.726c-.366 1.692-.162 3.407.498 4.907.715 1.627 1.928 2.873 3.568 3.552 2.197.91 4.43.996 6.15.24 1.717-.756 2.901-2.412 3.237-4.666.286-1.917-.21-3.671-1.496-4.797-1.297-1.135-3.34-1.715-5.927-1.715h-1.92l1.52-9.055h1.827c4.217 0 4.731 2.578 4.22 6.634-.162 1.287-.801 2.366-1.682 3.027l.059.087-.95.779c-.355.281-.79.092-.852-.283l-.614-3.632h3.711c1.741 0 3.091-.614 4.003-1.698.868-1.029 1.449-2.446 1.622-4.366.141-1.54-.305-2.974-1.34-3.948C19.538.543 17.53 0 14.96 0H7.5c-.524 0-.972.382-1.054.901L2.837 20.597a.641.641 0 0 0 .633.74h4.606l.546-3.233z"/>
-              </svg>
-              Pay with PayPal
-            </a>
-            <a
-              href="https://cash.app/$AuraAnky"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Donate via Cash App"
-              className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-full border hover:bg-white hover:bg-opacity-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-start)] transition-colors"
-              style={{
-                color: 'var(--text)',
-                borderColor: 'var(--brand-end)',
-                background: 'rgba(255,255,255,0.05)'
-              }}
-            >
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M23.091 3.406c-.35-.35-.918-.35-1.268 0L12 13.23 2.177 3.406c-.35-.35-.918-.35-1.268 0-.35.35-.35.918 0 1.268L10.732 15.5 1.909 25.326c-.35.35-.35.918 0 1.268.35.35.918.35 1.268 0L12 17.768l9.823 8.826c.35.35.918.35 1.268 0 .35-.35.35-.918 0-1.268L13.268 15.5l9.823-9.826c.35-.35.35-.918 0-1.268z"/>
-              </svg>
-              Pay with Cash App
-            </a>
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-y-12 gap-x-8 lg:gap-16">
+          
+          {/* Column 1 — AuraPal */}
+          <div className="flex flex-col gap-4">
+            <h3 className="text-xl font-black text-white tracking-tight">AuraPal</h3>
+            <p className="text-sm text-white/50 leading-relaxed font-medium">
+              Privacy-first community for real connection.
+            </p>
           </div>
+
+          {/* Column 2 — Product */}
+          <div>
+            <h4 className="text-sm font-black text-white mb-6 uppercase tracking-[0.2em]">Product</h4>
+            <ul className="space-y-4 text-sm font-bold">
+              <li>
+                <Link to="/#features" className="text-white/50 hover:text-white transition-colors duration-300">
+                  Features
+                </Link>
+              </li>
+              <li>
+                <Link to="/pricing" className="text-white/50 hover:text-white transition-colors duration-300">
+                  Pricing
+                </Link>
+              </li>
+              <li>
+                <Link to="/safety" className="text-white/50 hover:text-white transition-colors duration-300">
+                  Safety
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Column 3 — Company */}
+          <div>
+            <h4 className="text-sm font-black text-white mb-6 uppercase tracking-[0.2em]">Company</h4>
+            <ul className="space-y-4 text-sm font-bold">
+              <li>
+                <Link to="/about" className="text-white/50 hover:text-white transition-colors duration-300">
+                  About
+                </Link>
+              </li>
+              <li>
+                <Link to="/guidelines" className="text-white/50 hover:text-white transition-colors duration-300">
+                  Community Guidelines
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Column 4 — Legal */}
+          <div>
+            <h4 className="text-sm font-black text-white mb-6 uppercase tracking-[0.2em]">Legal</h4>
+            <ul className="space-y-4 text-sm font-bold">
+              <li>
+                <Link to="/privacy" className="text-white/50 hover:text-white transition-colors duration-300">
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link to="/terms" className="text-white/50 hover:text-white transition-colors duration-300">
+                  Terms of Service
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+        </div>
+
+        {/* BOTTOM COPYRIGHT LINE: Centered text */}
+        <div className="mt-20 pt-8 border-t border-white/5 text-center">
+          <p className="text-[11px] font-black text-white/30 tracking-[0.3em] uppercase">
+            © 2026 AuraPal. All rights reserved.
+          </p>
         </div>
       </div>
     </footer>

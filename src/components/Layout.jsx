@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { Button } from './ui/button'
 import { useAuthStore } from '../store/useStore'
 import {
@@ -11,11 +11,15 @@ import {
 import { Menu, User, LogOut, Settings, MessageSquare } from 'lucide-react'
 import { useState } from 'react'
 import logo from '../assets/AURAPAL.png'
+import { Footer } from './Footer'
 
 export function Layout({ children }) {
   const { isAuthenticated, user, signOut } = useAuthStore()
   const navigate = useNavigate()
+  const location = useLocation()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
+  const isHome = location.pathname === '/'
 
   const handleSignOut = () => {
     signOut()
@@ -23,21 +27,37 @@ export function Layout({ children }) {
   }
 
   return (
-    <div className="flex min-h-screen flex-col" style={{ background: 'var(--bg-dark)', color: 'var(--text)' }}>
+    <div 
+      className="flex min-h-screen flex-col transition-colors duration-300" 
+      style={{ 
+        background: 'var(--ap-dark)', 
+        color: 'var(--text)',
+        '--btn-primary-bg': 'linear-gradient(90deg, var(--ap-indigo), #6366F1)',
+        '--btn-primary-text': '#ffffff',
+        '--btn-outline-border': 'rgba(255,255,255,0.2)',
+        '--btn-outline-text': '#ffffff',
+        '--btn-ghost-text': 'var(--muted)',
+        '--btn-link-text': 'var(--ap-indigo)',
+      }}
+    >
       <a href="#main-content" className="skip-to-content">
         Skip to main content
       </a>
 
       <header
-        className="sticky top-0 z-50 border-b"
-        style={{ background: 'rgba(6,16,36,0.6)', backdropFilter: 'blur(6px)', borderColor: 'rgba(255,255,255,0.04)' }}
+        className="sticky top-0 z-50 border-b transition-colors duration-300"
+        style={{ 
+          background: 'rgba(9,9,11,0.8)', 
+          backdropFilter: 'blur(10px)', 
+          borderColor: 'rgba(255,255,255,0.05)' 
+        }}
       >
         <nav className="mx-auto grid max-w-7xl grid-cols-2 items-center gap-4 px-4 py-4 sm:px-6 lg:grid-cols-3 lg:px-8">
           {/* Left: logo */}
           <div className="flex items-center">
-            <Link to="/" className="flex items-center gap-3">
-              <img src={logo} alt="AuraPal" className="h-8 w-auto sm:h-10" />
-              <span className="text-lg font-semibold tracking-tight" style={{ color: 'var(--text)' }}>
+            <Link to="/" className="flex items-center gap-4">
+              <img src={logo} alt="AuraPal" className="h-12 w-auto sm:h-16" />
+              <span className="text-2xl font-bold tracking-tight text-white">
                 AuraPal
               </span>
             </Link>
@@ -46,16 +66,16 @@ export function Layout({ children }) {
           {/* Center: nav */}
           <div className="hidden justify-center md:flex">
             <div className="flex items-center gap-8">
-              <Link to="/" className="text-sm font-medium" style={{ color: 'var(--muted)' }}>
+              <Link to="/" className="text-sm font-medium hover:text-ap-indigo transition-colors" style={{ color: 'var(--muted)' }}>
                 Home
               </Link>
-              <Link to="/features" className="text-sm font-medium" style={{ color: 'var(--muted)' }}>
+              <Link to="/features" className="text-sm font-medium hover:text-ap-indigo transition-colors" style={{ color: 'var(--muted)' }}>
                 Features
               </Link>
-              <Link to="/pricing" className="text-sm font-medium" style={{ color: 'var(--muted)' }}>
+              <Link to="/pricing" className="text-sm font-medium hover:text-ap-indigo transition-colors" style={{ color: 'var(--muted)' }}>
                 Pricing
               </Link>
-              <Link to="/safety" className="text-sm font-medium" style={{ color: 'var(--muted)' }}>
+              <Link to="/safety" className="text-sm font-medium hover:text-ap-indigo transition-colors" style={{ color: 'var(--muted)' }}>
                 Safety
               </Link>
             </div>
@@ -106,12 +126,12 @@ export function Layout({ children }) {
                 <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
                   <Link to="/signin" style={{ color: 'var(--muted)' }}>Sign In</Link>
                 </Button>
-                <Button asChild variant="outline" size="sm" className="hidden sm:inline-flex">
+                <Button asChild variant="outline" size="sm" className="hidden sm:inline-flex" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
                   <Link to="/signup" style={{ color: 'var(--text)' }}>Sign Up</Link>
                 </Button>
                 <Button
                   size="sm"
-                  className="hidden sm:inline-flex"
+                  className="hidden sm:inline-flex bg-ap-indigo hover:bg-indigo-600 text-white shadow-md transition-all active:scale-95"
                   onClick={() => navigate('/chat?mode=text')}
                 >
                   Start Chat
@@ -245,71 +265,7 @@ export function Layout({ children }) {
         {children}
       </main>
 
-      <footer className="border-t py-12" style={{ borderColor: 'rgba(255,255,255,0.03)', background: 'var(--surface)' }}>
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
-            <div>
-              <h3 className="text-lg font-semibold" style={{ color: 'var(--text)' }}>AuraPal</h3>
-              <p className="mt-2 text-sm" style={{ color: 'var(--muted)' }}>
-                Privacy-first community for real connection.
-              </p>
-            </div>
-            <div>
-              <h4 className="font-semibold" style={{ color: 'var(--text)' }}>Product</h4>
-              <ul className="mt-2 space-y-2 text-sm">
-                <li>
-                  <Link to="/features" style={{ color: 'var(--muted)' }} className="hover:text-white">
-                    Features
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/pricing" style={{ color: 'var(--muted)' }} className="hover:text-white">
-                    Pricing
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/safety" style={{ color: 'var(--muted)' }} className="hover:text-white">
-                    Safety
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold" style={{ color: 'var(--text)' }}>Company</h4>
-              <ul className="mt-2 space-y-2 text-sm">
-                <li>
-                  <Link to="/about" style={{ color: 'var(--muted)' }} className="hover:text-white">
-                    About
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/safety" style={{ color: 'var(--muted)' }} className="hover:text-white">
-                    Community Guidelines
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold" style={{ color: 'var(--text)' }}>Legal</h4>
-              <ul className="mt-2 space-y-2 text-sm">
-                <li>
-                  <a href="#" style={{ color: 'var(--muted)' }} className="hover:text-white">
-                    Privacy Policy
-                  </a>
-                </li>
-                <li>
-                  <a href="#" style={{ color: 'var(--muted)' }} className="hover:text-white">
-                    Terms of Service
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div className="mt-8 border-t pt-8 text-center text-sm" style={{ borderColor: 'rgba(255,255,255,0.03)', color: 'var(--muted)' }}>
-            <p>&copy; {new Date().getFullYear()} AuraPal. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }

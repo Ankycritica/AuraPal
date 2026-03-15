@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useToast } from './ui/use-toast'
 import * as socketApi from '../api/socket'
+import { useAuthStore } from '../store/useStore'
 
 const ICE_SERVERS_DEFAULT = [{ urls: 'stun:stun.l.google.com:19302' }]
 
@@ -10,6 +11,7 @@ const ICE_SERVERS_DEFAULT = [{ urls: 'stun:stun.l.google.com:19302' }]
 
 export default function VideoChat({ config, onEnd }) {
   const { toast } = useToast()
+  const { isAuthenticated, isGuest } = useAuthStore()
 
   const localVideoRef = useRef(null)
   const remoteVideoRef = useRef(null)
@@ -18,6 +20,7 @@ export default function VideoChat({ config, onEnd }) {
   const turnConfigRef = useRef(null)
   const graceTimerRef = useRef(null)
   const graceWindowRef = useRef(30000) // default, updated from server
+  const intentionalEnd = useRef(false)
 
   const [status, setStatus] = useState('initial')
   const [countdown, setCountdown] = useState(0)
@@ -315,7 +318,12 @@ export default function VideoChat({ config, onEnd }) {
         s.off('partner-reconnected', handlePartnerReconnected)
         s.off('session-not-found', handleSessionNotFound)
         s.off('session-resumed', handleSessionResumed)
-        s.emit('video-end')
+
+        if (intentionalEnd.current) {
+          console.log('[Signal] Emitting video-end (intentional)')
+          s.emit('video-end')
+          intentionalEnd.current = false
+        }
       }
       cleanup()
     }
@@ -331,6 +339,7 @@ export default function VideoChat({ config, onEnd }) {
   }
 
   const handleEnd = () => {
+    intentionalEnd.current = true
     getSocket().emit('video-end')
     sessionStorage.removeItem('ap-video-partner')
     cleanup()
@@ -350,6 +359,22 @@ export default function VideoChat({ config, onEnd }) {
     localStreamRef.current.getVideoTracks().forEach(t => (t.enabled = !next))
     setCameraOff(next)
   }
+
+  // ─── friend request ───────────────────────────────────────────────────────
+  const handleAddFriend = useCallback(() => {
+    if (!isAuthenticated || isGuest) {
+      toast({ title: 'Sign in required', description: 'Please sign in to add friends.', variant: 'destructive' })
+      return
+    }
+    const partnerId = sessionStorage.getItem('ap-video-partner')
+    if (!partnerId) return
+    const s = getSocket()
+    const { user } = useAuthStore.getState()
+    const fromMeta = { id: user.id, displayName: user.displayName, avatar: user.avatar }
+
+    s.emit('friend_request', { toId: partnerId, fromMeta })
+    toast({ title: 'Friend Request Sent', description: 'Sent to Stranger' })
+  }, [isAuthenticated, isGuest, getSocket, toast])
 
   const findNew = () => {
     sessionStorage.removeItem('ap-video-partner')
@@ -384,9 +409,9 @@ export default function VideoChat({ config, onEnd }) {
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-3">
           <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${status === 'connected' ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.7)]' :
-              status === 'reconnecting' ? 'bg-amber-400 animate-pulse' :
-                status === 'searching' || status === 'connecting' || status === 'countdown'
-                  ? 'bg-amber-400 animate-pulse' : 'bg-zinc-600'
+            status === 'reconnecting' ? 'bg-amber-400 animate-pulse' :
+              status === 'searching' || status === 'connecting' || status === 'countdown'
+                ? 'bg-amber-400 animate-pulse' : 'bg-zinc-600'
             }`} />
           <div>
             <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400 flex items-center gap-2">
@@ -398,6 +423,14 @@ export default function VideoChat({ config, onEnd }) {
         </div>
 
         <div className="flex items-center gap-2">
+          {status === 'connected' && (
+            <button
+              onClick={handleAddFriend}
+              className="px-4 py-1.5 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-400 text-sm font-semibold border border-emerald-500/30 transition-all active:scale-95 flex items-center gap-1"
+            >
+              <span>+</span> Friend
+            </button>
+          )}
           {isActive && (
             <button
               onClick={handleSkip}
@@ -433,6 +466,22 @@ export default function VideoChat({ config, onEnd }) {
             playsInline
             className={`w-full h-full object-cover hidden ${status === 'countdown' ? 'blur-2xl' : ''}`}
           />
+
+          {/* Searching overlay */}
+          <AnimatePresence>
+            {status === 'searching' && (
+              <motion.div
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                className="absolute inset-0 flex flex-col items-center justify-center bg-zinc-950/90 z-20 backdrop-blur-md"
+              >
+                <motion.div animate={{ scale: [1, 1.2, 1], opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1.5 }} className="w-20 h-20 bg-ap-indigo/10 rounded-full flex items-center justify-center mb-6">
+                  <div className="w-10 h-10 bg-ap-indigo rounded-full shadow-[0_0_20px_rgba(79,70,229,0.5)]" />
+                </motion.div>
+                <h3 className="text-xl font-extrabold text-white mb-2 tracking-tight">Finding someone interesting...</h3>
+                <p className="text-sm text-zinc-400 font-medium">Searching globally 🌍</p>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Countdown overlay */}
           <AnimatePresence>

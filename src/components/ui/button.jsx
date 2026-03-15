@@ -40,23 +40,23 @@ const Button = React.forwardRef(function Button(
   const variantStyle =
     variant === 'default'
       ? {
-          background: 'linear-gradient(90deg, var(--brand-start), var(--brand-gradient))',
-          color: 'var(--on-brand, #fff)',
+          background: 'var(--btn-primary-bg, linear-gradient(90deg, var(--brand-start), var(--brand-gradient)))',
+          color: 'var(--btn-primary-text, var(--on-brand, #fff))',
         }
       : variant === 'outline'
       ? {
-          borderColor: 'var(--brand-start)',
-          color: 'var(--text)',
+          borderColor: 'var(--btn-outline-border, var(--brand-start))',
+          color: 'var(--btn-outline-text, var(--text))',
           background: 'transparent',
         }
       : variant === 'ghost'
       ? {
           background: 'transparent',
-          color: 'var(--muted)',
+          color: 'var(--btn-ghost-text, var(--muted))',
         }
       : variant === 'link'
       ? {
-          color: 'var(--brand-start)',
+          color: 'var(--btn-link-text, var(--brand-start))',
           background: 'transparent',
         }
       : variant === 'destructive'

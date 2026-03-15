@@ -18,7 +18,7 @@ import { useAuthStore } from '../store/useStore'
 import { useToast } from '../components/ui/use-toast'
 
 export function Profile() {
-  const { user, updateProfile } = useAuthStore()
+  const { user, updateProfile, updateDisplayName } = useAuthStore()
   const navigate = useNavigate()
   const { push } = useToast()
 
@@ -30,8 +30,13 @@ export function Profile() {
 
   const handleSave = async () => {
     try {
+      const nameRes = updateDisplayName(displayName)
+      if (nameRes && !nameRes.success) {
+        push({ title: 'Validation Error', description: nameRes.error, variant: 'destructive', duration: 4000 })
+        return
+      }
+
       await updateProfile({
-        displayName,
         handle,
         bio,
         interests,

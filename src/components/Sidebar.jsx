@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { Menu, X } from 'lucide-react'
+import { useAuthStore } from '../store/useStore'
 
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
+  const { isAuthenticated, isGuest } = useAuthStore()
 
   const identity = JSON.parse(localStorage.getItem('ap-guest-identity') || '{}')
   const isPremium = localStorage.getItem('ap-premium') === 'true'
@@ -74,12 +76,22 @@ export default function Sidebar() {
         <nav className="flex flex-col gap-2">
           {navItems.map((item, idx) => {
             const isActive = item.id === 'chat'
+
+            if (item.id === 'friends' && (!isAuthenticated || isGuest)) {
+              return (
+                <div key={idx} className="mt-2 px-3 py-3 rounded-lg border border-dashed border-white/10 bg-zinc-900/50 text-center">
+                  <p className="text-[11px] text-zinc-500 leading-tight">Sign in to view and manage your friends.</p>
+                </div>
+              )
+            }
+            if (item.id === 'messages' && (!isAuthenticated || isGuest)) return null
+
             return (
               <div
                 key={idx}
                 className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 cursor-pointer ${isActive
-                    ? 'bg-white/10 text-white border border-white/5'
-                    : 'text-zinc-400 hover:text-white hover:bg-white/5'
+                  ? 'bg-white/10 text-white border border-white/5'
+                  : 'text-zinc-400 hover:text-white hover:bg-white/5'
                   }`}
               >
                 <span className="text-lg">{item.icon}</span>

@@ -27,6 +27,10 @@ const logger = pino({
 const turnConfig = {
   iceServers: [
     { urls: 'stun:stun.l.google.com:19302' },
+    { urls: 'stun:stun1.l.google.com:19302' },
+    { urls: 'stun:stun2.l.google.com:19302' },
+    { urls: 'stun:stun3.l.google.com:19302' },
+    { urls: 'stun:stun4.l.google.com:19302' },
     {
       urls: process.env.TURN_URL || 'turn:fake.turn.server:3478',
       username: process.env.TURN_USER || 'user',
@@ -74,7 +78,19 @@ const JWT_SECRET = process.env.JWT_SECRET || 'devsecret'
 
 const app = express()
 app.use(cors({
-  origin: ["http://localhost:5173", "http://localhost:5174", "https://aurapal.vercel.app", "https://aurapal.org"],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true)
+    // Allow localhost, local network IPs, and any Vercel domain
+    if (origin.match(/^http:\/\/localhost/) || 
+        origin.match(/^http:\/\/192\.168\./) || 
+        origin.match(/^http:\/\/10\./) || 
+        origin.match(/vercel\.app$/) || 
+        origin === 'https://aurapal.org') {
+      return callback(null, true)
+    }
+    callback(new Error('Not allowed by CORS'))
+  },
   methods: ["GET", "POST"],
   credentials: true
 }))
@@ -108,7 +124,17 @@ app.post('/api/auth/logout', (req, res) => {
 const httpServer = createServer(app)
 const io = new Server(httpServer, {
   cors: {
-    origin: ["http://localhost:5173", "http://localhost:5174", "https://aurapal.vercel.app", "https://aurapal.org"],
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true)
+      if (origin.match(/^http:\/\/localhost/) || 
+          origin.match(/^http:\/\/192\.168\./) || 
+          origin.match(/^http:\/\/10\./) || 
+          origin.match(/vercel\.app$/) || 
+          origin === 'https://aurapal.org') {
+        return callback(null, true)
+      }
+      callback(new Error('Not allowed by CORS'))
+    },
     methods: ["GET", "POST"],
     credentials: true,
     transports: ["websocket", "polling"]

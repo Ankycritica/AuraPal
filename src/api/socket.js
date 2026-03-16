@@ -1,6 +1,19 @@
 import { io } from 'socket.io-client'
 
-const DEFAULT_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:3000'
+// When running locally on network (e.g., 192.168.x.x), we need to connect to the same host on port 3000
+// rather than defaulting strictly to localhost. For production (Vercel), it should relative.
+const isLocalNetwork = typeof window !== 'undefined' && 
+  (window.location.hostname.includes('192.168.') || 
+   window.location.hostname.includes('10.') ||
+   window.location.hostname === 'localhost')
+
+const getBaseUrl = () => {
+  if (import.meta.env.VITE_SOCKET_URL) return import.meta.env.VITE_SOCKET_URL
+  if (isLocalNetwork) return `http://${window.location.hostname}:3000`
+  return '' // production uses same domain usually
+}
+
+const DEFAULT_URL = getBaseUrl()
 
 let _socket = null
 let pendingListeners = []

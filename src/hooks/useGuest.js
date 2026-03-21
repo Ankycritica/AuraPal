@@ -14,6 +14,7 @@ export function useGuest() {
     const raw = localStorage.getItem(KEY)
     if (raw) {
       try {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setGuest(JSON.parse(raw))
       } catch {
         setGuest(null)

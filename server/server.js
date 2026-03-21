@@ -520,6 +520,7 @@ io.on('connection', (socket) => {
 
       if (b) {
         const bMeta = meta.get(b)
+        logger.info({ event: 'paired', a, b, roomId: `room_${a}_${b}` })
         peers.set(a, b)
         peers.set(b, a)
         io.to(a).emit('paired', { roomId: `room_${a}_${b}`, partner: bMeta })

@@ -25,7 +25,8 @@ export function SignUp() {
       } else {
         setError('Something went wrong. Please try again.')
       }
-    } catch (err) {
+    } catch {
+      console.warn('SignUp modal close error')
       setError('Something went wrong. Please try again.')
     }
   }

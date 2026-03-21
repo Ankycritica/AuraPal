@@ -45,6 +45,72 @@ export default function VideoChat({ config, onEnd }) {
     return s
   }, [])
 
+  // ─── countdown overlay ──────────────────────────────────────────────────────
+  const startCountdown = useCallback(() => {
+    if (countdownRef.current) return
+    setStatus('countdown')
+    setCountdown(3)
+    let count = 3
+    countdownRef.current = setInterval(() => {
+      count -= 1
+      setCountdown(count)
+      if (count <= 0) {
+        clearInterval(countdownRef.current)
+        countdownRef.current = null
+        setStatus('connected')
+        toast({ title: 'Connected! 🎉', description: 'Live with a stranger.' })
+      }
+    }, 1000)
+  }, [toast])
+
+  // ─── cleanup ────────────────────────────────────────────────────────────────
+  const cleanup = useCallback(() => {
+    if (countdownRef.current) { clearInterval(countdownRef.current); countdownRef.current = null }
+    if (graceTimerRef.current) { clearInterval(graceTimerRef.current); graceTimerRef.current = null }
+    if (pcRef.current) { pcRef.current.close(); pcRef.current = null }
+    if (localStreamRef.current) {
+      localStreamRef.current.getTracks().forEach(t => t.stop())
+      localStreamRef.current = null
+    }
+    if (localVideoRef.current) localVideoRef.current.srcObject = null
+    if (remoteVideoRef.current) { remoteVideoRef.current.srcObject = null; remoteVideoRef.current.classList.add('hidden') }
+  }, [])
+
+  // ─── ICE restart ────────────────────────────────────────────────────────────
+  const handleIceFailure = useCallback(async () => {
+    console.log('[WebRTC] ICE failure — attempting ICE restart')
+    const pc = pcRef.current
+    if (!pc) return
+    try {
+      const offer = await pc.createOffer({ iceRestart: true })
+      await pc.setLocalDescription(offer)
+      getSocket().emit('video-offer', { type: offer.type, sdp: offer.sdp })
+      console.log('[WebRTC] ICE restart offer sent')
+    } catch (err) {
+      console.error('[WebRTC] ICE restart failed', err)
+    }
+  }, [getSocket])
+
+  // ─── search ──────────────────────────────────────────────────────────────
+  const startSearch = useCallback(() => {
+    const s = getSocket()
+    const payload = { ...config, isPremium }
+
+    // Check if we have a pending session to resume first
+    const sessionId = socketApi.SESSION_ID
+    const storedPartnerId = sessionStorage.getItem('ap-video-partner')
+    if (storedPartnerId && sessionId) {
+      console.log('[Signal] Attempting resume-session:', sessionId)
+      s.emit('resume-session', { sessionId })
+      setStatus('reconnecting')
+      return
+    }
+
+    console.log('[Signal] Emitting video-find-random', payload)
+    setStatus('searching')
+    s.emit('video-find-random', payload)
+  }, [config, getSocket, isPremium])
+
   // ─── peer connection ────────────────────────────────────────────────────────
   const createPC = useCallback((iceRestart = false) => {
     if (pcRef.current && !iceRestart) return pcRef.current
@@ -91,51 +157,8 @@ export default function VideoChat({ config, onEnd }) {
     return pc
   }, [getSocket])
 
-  // ─── countdown overlay ──────────────────────────────────────────────────────
-  const startCountdown = useCallback(() => {
-    if (countdownRef.current) return
-    setStatus('countdown')
-    setCountdown(3)
-    let count = 3
-    countdownRef.current = setInterval(() => {
-      count -= 1
-      setCountdown(count)
-      if (count <= 0) {
-        clearInterval(countdownRef.current)
-        countdownRef.current = null
-        setStatus('connected')
-        toast({ title: 'Connected! 🎉', description: 'Live with a stranger.' })
-      }
-    }, 1000)
-  }, [toast])
 
-  // ─── cleanup ────────────────────────────────────────────────────────────────
-  const cleanup = useCallback(() => {
-    if (countdownRef.current) { clearInterval(countdownRef.current); countdownRef.current = null }
-    if (graceTimerRef.current) { clearInterval(graceTimerRef.current); graceTimerRef.current = null }
-    if (pcRef.current) { pcRef.current.close(); pcRef.current = null }
-    if (localStreamRef.current) {
-      localStreamRef.current.getTracks().forEach(t => t.stop())
-      localStreamRef.current = null
-    }
-    if (localVideoRef.current) localVideoRef.current.srcObject = null
-    if (remoteVideoRef.current) { remoteVideoRef.current.srcObject = null; remoteVideoRef.current.classList.add('hidden') }
-  }, [])
 
-  // ─── ICE restart ────────────────────────────────────────────────────────────
-  const handleIceFailure = useCallback(async () => {
-    console.log('[WebRTC] ICE failure — attempting ICE restart')
-    const pc = pcRef.current
-    if (!pc) return
-    try {
-      const offer = await pc.createOffer({ iceRestart: true })
-      await pc.setLocalDescription(offer)
-      getSocket().emit('video-offer', { type: offer.type, sdp: offer.sdp })
-      console.log('[WebRTC] ICE restart offer sent')
-    } catch (err) {
-      console.error('[WebRTC] ICE restart failed', err)
-    }
-  }, [getSocket])
 
   // ─── grace-window countdown UI ──────────────────────────────────────────────
   const startGraceCountdown = useCallback((windowMs) => {
@@ -242,25 +265,6 @@ export default function VideoChat({ config, onEnd }) {
     setStatus('connecting')
   }, [toast])
 
-  // ─── search ──────────────────────────────────────────────────────────────
-  const startSearch = useCallback(() => {
-    const s = getSocket()
-    const payload = { ...config, isPremium }
-
-    // Check if we have a pending session to resume first
-    const sessionId = socketApi.SESSION_ID
-    const storedPartnerId = sessionStorage.getItem('ap-video-partner')
-    if (storedPartnerId && sessionId) {
-      console.log('[Signal] Attempting resume-session:', sessionId)
-      s.emit('resume-session', { sessionId })
-      setStatus('reconnecting')
-      return
-    }
-
-    console.log('[Signal] Emitting video-find-random', payload)
-    setStatus('searching')
-    s.emit('video-find-random', payload)
-  }, [config, getSocket, isPremium])
 
   // ─── mount ────────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -526,6 +530,7 @@ export default function VideoChat({ config, onEnd }) {
                     className="h-full bg-amber-500 rounded-full"
                     initial={{ width: '100%' }}
                     animate={{ width: '0%' }}
+                    /* eslint-disable-next-line react-hooks/refs */
                     transition={{ duration: graceWindowRef.current / 1000, ease: 'linear' }}
                   />
                 </div>

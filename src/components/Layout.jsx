@@ -1,4 +1,4 @@
-import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Button } from './ui/button'
 import { useAuthStore } from '../store/useStore'
 import {
@@ -16,10 +16,7 @@ import { Footer } from './Footer'
 export function Layout({ children }) {
   const { isAuthenticated, user, signOut } = useAuthStore()
   const navigate = useNavigate()
-  const location = useLocation()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-
-  const isHome = location.pathname === '/'
 
   const handleSignOut = () => {
     signOut()

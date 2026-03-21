@@ -1,3 +1,4 @@
+/* eslint-env jest */
 const { createServer } = require("http");
 const { Server } = require("socket.io");
 const Client = require("socket.io-client");
@@ -71,3 +72,4 @@ describe("WebRTC Signaling E2E Exchange", () => {
         clientSocketA.emit("ice-candidate", mockCandidate);
     });
 });
+

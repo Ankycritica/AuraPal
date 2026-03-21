@@ -1,0 +1,14 @@
+﻿
+> aurapal@0.0.0 dev
+> concurrently "vite" "node server/server.js"
+
+[0] 
+[0]   [32m[1mVITE[22m v7.2.4[39m  [2mready in [0m[1m2064[22m[2m[0m ms[22m
+[0] 
+[0]   [32mΓ₧£[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+[0]   [32mΓ₧£[39m  [1mNetwork[22m: [36mhttp://192.168.0.122:[1m5173[22m/[39m
+[1] {"level":"info","time":1774109209563,"pid":9084,"hostname":"Ankit","event":"server_start","port":3000}
+[1] {"level":"info","time":1774109209597,"pid":9084,"hostname":"Ankit","event":"socket_connect","socketId":"1pG479k8LdKMHRNoAAAB"}
+[1] {"level":"info","time":1774109209601,"pid":9084,"hostname":"Ankit","event":"session_registered","sessionId":"sess_1774106711524_9anzm1r","socketId":"1pG479k8LdKMHRNoAAAB"}
+[1] {"level":"info","time":1774109215053,"pid":9084,"hostname":"Ankit","event":"socket_connect","socketId":"oECPjjJupT6XCq7fAAAD"}
+[1] {"level":"info","time":1774109215059,"pid":9084,"hostname":"Ankit","event":"session_registered","sessionId":"sess_1774106711524_9anzm1r","socketId":"oECPjjJupT6XCq7fAAAD"}

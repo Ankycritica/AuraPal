@@ -1,3 +1,4 @@
+/* eslint-env jest */
 /**
  * AuraPal — Socket Pairing Integration Test
  * Tests: video-find-random → video-ready → video-end propagation
@@ -184,3 +185,4 @@ async function runTests() {
 }
 
 runTests().catch((err) => { console.error(err); process.exit(1) })
+

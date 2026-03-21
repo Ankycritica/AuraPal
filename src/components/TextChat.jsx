@@ -335,6 +335,7 @@ export default function TextChat({ config, onEnd }) {
                                     </AnimatePresence>
 
                                     <p className={`text-[10px] text-zinc-600 mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity ${isMe ? 'text-right' : 'text-left'}`}>
+                                        {/* eslint-disable-next-line react-hooks/purity */}
                                         {new Date(msg.ts || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                     </p>
                                 </div>

@@ -1,3 +1,4 @@
+/* eslint-env jest */
 import { createServer } from 'http'
 import { Server } from 'socket.io'
 import Client from 'socket.io-client'
@@ -105,3 +106,4 @@ describe('Video Chat Signaling', () => {
         client2.emit('video-find-random', { guestName: 'C2' })
     })
 })
+

@@ -1,3 +1,4 @@
+/* eslint-env jest */
 import { render, screen } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
 import { Profile } from '../Profile'
@@ -9,7 +10,7 @@ jest.mock('../../store/useStore', () => ({
 }))
 
 // Mock toast to avoid provider requirement
-jest.mock('../../components/ui/Toast', () => ({
+jest.mock('../../components/ui/use-toast', () => ({
   useToast: () => ({ push: jest.fn() }),
 }))
 
@@ -25,6 +26,7 @@ describe('Profile', () => {
         visibility: 'public',
       },
       updateProfile: jest.fn(),
+      updateDisplayName: jest.fn(() => ({ success: true })),
     })
   })
 
@@ -48,4 +50,3 @@ describe('Profile', () => {
     expect(screen.getByDisplayValue('@testuser')).toBeInTheDocument()
   })
 })
-

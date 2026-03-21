@@ -9,22 +9,23 @@ const persistStorage = {
     try {
       const item = localStorage.getItem(name)
       return item ? JSON.parse(item) : null
-    } catch {
+    } catch (err) {
+      console.warn('LocalStorage getItem failed', err)
       return null
     }
   },
   setItem: (name, value) => {
     try {
       localStorage.setItem(name, JSON.stringify(value))
-    } catch {
-      // ignore storage errors
+    } catch (err) {
+      console.warn('LocalStorage setItem failed', err)
     }
   },
   removeItem: (name) => {
     try {
       localStorage.removeItem(name)
-    } catch {
-      // ignore
+    } catch (err) {
+      console.warn('LocalStorage removeItem failed', err)
     }
   },
 }
@@ -275,13 +276,15 @@ if (persistedAuth && (persistedAuth.user || persistedAuth.isAuthenticated)) {
 useAuthStore.subscribe((state) => {
   try {
     persistStorage.setItem('aurapal-auth', state)
-  } catch { }
+  } catch (err) {
+    console.warn('AuthStore subscribe persistence failed', err)
+  }
 })
 
 /**
  * MESSAGE STORE
  */
-const useMessageStore = create((set, get) => ({
+const useMessageStore = create((set) => ({
   conversations: [],
   currentConversationId: null,
   messages: {},
@@ -308,10 +311,22 @@ const useMessageStore = create((set, get) => ({
     })
   },
 
-  simulateIncomingMessage: () => { },
-  blockUser: () => { },
-  unblockUser: () => { },
-  reportUser: () => { },
+  simulateIncomingMessage: (msg) => {
+    // Logic for simulating incoming messages
+    console.log('Simulating message:', msg)
+  },
+  blockUser: (userId) => {
+    // Logic for blocking user
+    console.log('Blocking user:', userId)
+  },
+  unblockUser: (userId) => {
+    // Logic for unblocking user
+    console.log('Unblocking user:', userId)
+  },
+  reportUser: (userId, reason) => {
+    // Logic for reporting user
+    console.log('Reporting user:', userId, reason)
+  },
 }))
 
 /**

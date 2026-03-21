@@ -1,7 +1,6 @@
 import React from 'react'
 
 export function ChatControls({ onNext, onExit, onAddFriend, disabledNext }) {
-  const reduced = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches
   return (
     <div className="flex items-center gap-2">
       <button

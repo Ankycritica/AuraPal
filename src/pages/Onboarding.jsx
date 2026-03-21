@@ -29,7 +29,9 @@ export function Onboarding() {
         description: `Your AuraPal identity is ready, ${user?.displayName}!`,
         duration: 3500,
       })
-    } catch {}
+    } catch {
+      // Ignore
+    }
     navigate('/dashboard', { replace: true })
   }
 

@@ -22,9 +22,13 @@ export function NavBar() {
 
   // Toast
   const { push } = useToast()
+  
+  // Guest
+  const { startAsGuest } = useGuest()
 
   // Close mobile nav on route change
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setOpen(false)
   }, [location.pathname])
 
@@ -208,10 +212,10 @@ export function NavBar() {
                   size="sm"
                   onClick={() => {
                     try {
-                      const { startAsGuest } = useGuest()
                       startAsGuest()
                       navigate('/chat')
-                    } catch (e) {
+                    } catch (err) {
+                      console.warn('Guest sign-in failed', err)
                       navigate('/chat')
                     }
                   }}

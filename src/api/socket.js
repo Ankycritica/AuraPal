@@ -20,10 +20,10 @@ let pendingListeners = []
 
 // ─── Stable session ID ───────────────────────────────────────────────────────
 function getOrCreateSessionId() {
-  let sid = localStorage.getItem('ap-session-id')
+  let sid = sessionStorage.getItem('ap-session-id')
   if (!sid) {
     sid = `sess_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`
-    localStorage.setItem('ap-session-id', sid)
+    sessionStorage.setItem('ap-session-id', sid)
   }
   return sid
 }

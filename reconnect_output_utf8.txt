@@ -1,0 +1,34 @@
+﻿
+=== AuraPal Reconnection Tests (GRACE_MS=6000ms) ===
+
+TEST 1: Normal pairing
+  Γ£à PASS: Client 1 received video-ready
+  Γ£à PASS: Client 2 received video-ready
+
+TEST 2: Transient blip ΓÇö reconnect within grace window
+  Γ£à PASS: C2 got partner-reconnecting with correct graceWindowMs (6000)
+  Γ£à PASS: C1 received session-resumed
+node :   Γ¥î FAIL: C2 
+received 
+partner-reconnected
+At line:1 char:1
++ node server/tests/reconne
+ct.test.js > 
+reconnect_output.txt 2>&1
++ ~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~
+    + CategoryInfo         
+     : NotSpecified: (  Γ  
+  ¥î FAIL: C2 ...ner-rec   
+ onnected:String) [], R    
+emoteException
+    + FullyQualifiedErrorI 
+   d : NativeCommandError
+ 
+
+TEST 3: No reconnect ΓÇö video-end after grace window
+  Γ£à PASS: C2 received video-end within 9000ms after permanent disconnect
+
+=== Results: 5 passed, 1 failed ===
+

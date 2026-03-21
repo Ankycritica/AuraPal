@@ -15,7 +15,6 @@ export default {
         'ap-muted': '#8b8d98',
         'surface': '#121214',
         'text': '#fafafa',
-        'muted': '#a1a1aa',
         'brand-start': '#d4af37',
         'on-brand': '#09090b',
 

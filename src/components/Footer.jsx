@@ -3,6 +3,16 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 
 export function Footer() {
+  const [stars] = React.useState(() => [...Array(60)].map(() => ({
+    top: Math.random() * 100 + '%',
+    left: Math.random() * 100 + '%',
+    width: Math.random() * 1.5 + 'px',
+    height: Math.random() * 1.5 + 'px',
+    opacity: Math.random() * 0.5,
+    duration: 3 + Math.random() * 5,
+    delay: Math.random() * 10
+  })))
+
   return (
     <footer className="relative pt-12 pb-8 overflow-hidden">
       {/* 🌌 Design Requirements: Dark gradient background (deep navy → teal) */}
@@ -10,22 +20,22 @@ export function Footer() {
       
       {/* 🌌 Design Requirements: Small star-like dots scattered across the background */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-        {[...Array(60)].map((_, i) => (
+        {stars.map((star, i) => (
           <motion.div
             key={i}
-            initial={{ opacity: Math.random() * 0.5 }}
+            initial={{ opacity: star.opacity }}
             animate={{ opacity: [0.2, 0.6, 0.2] }}
             transition={{ 
-              duration: 3 + Math.random() * 5, 
+              duration: star.duration, 
               repeat: Infinity, 
-              delay: Math.random() * 10 
+              delay: star.delay 
             }}
             className="absolute bg-white rounded-full"
             style={{ 
-              width: Math.random() * 1.5 + 'px', 
-              height: Math.random() * 1.5 + 'px',
-              top: Math.random() * 100 + '%', 
-              left: Math.random() * 100 + '%' 
+              width: star.width, 
+              height: star.height,
+              top: star.top, 
+              left: star.left 
             }}
           />
         ))}

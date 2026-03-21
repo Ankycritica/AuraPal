@@ -22,6 +22,7 @@ export default function StartChat({ onStartChat }) {
   useEffect(() => {
     const storedGender = localStorage.getItem('ap-gender')
     const storedInterests = localStorage.getItem('ap-interests')
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (storedGender) setGenderPreference(storedGender)
     if (storedInterests) {
       try {

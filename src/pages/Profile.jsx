@@ -51,7 +51,7 @@ export function Profile() {
       })
 
       navigate('/dashboard', { replace: true })
-    } catch (err) {
+    } catch {
       push({
         title: 'Error saving profile',
         description: 'Something went wrong. Please try again.',

@@ -42,13 +42,15 @@ export function SignIn() {
             description: `Welcome, ${result.user.displayName}!`,
             duration: 3000,
           })
-        } catch {}
+        } catch {
+          // no-op
+        }
         // Navigate back to the original protected route or chat
         navigate(redirectTo, { replace: true })
       } else {
         setError(result?.error || 'Invalid email or password')
       }
-    } catch (err) {
+    } catch {
       setError('Something went wrong. Please try again.')
     } finally {
       setLoading(false)
@@ -63,7 +65,9 @@ export function SignIn() {
         description: 'You are signed in as a guest with a fun random identity.',
         duration: 3500,
       })
-    } catch {}
+    } catch (err) {
+      console.warn('Toast notification failed', err)
+    }
     // If user was trying to access a protected route, send them there; otherwise dashboard
     const guestRedirect = location.state?.from?.pathname || '/dashboard'
     navigate(guestRedirect, { replace: true })

@@ -2,7 +2,7 @@
 import React, { useRef } from 'react'
 import { Button } from './ui/button'
 
-export default function VideoChat({ config, onEnd }) {
+export default function VideoChat({ onEnd }) {
   const localVideoRef = useRef(null)
   const remoteVideoRef = useRef(null)
 

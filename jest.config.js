@@ -12,5 +12,6 @@ export default {
     '!src/main.jsx',
     '!src/test/**',
   ],
+  testPathIgnorePatterns: ['/node_modules/', '/server/tests/'],
 }
 

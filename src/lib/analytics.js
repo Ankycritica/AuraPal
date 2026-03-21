@@ -5,7 +5,7 @@
  */
 
 export const trackEvent = (eventName, properties = {}) => {
-    if (process.env.NODE_ENV !== 'production') {
+    if (import.meta.env.DEV) {
         console.log(`[Analytics] Track: ${eventName}`, properties)
     }
 
@@ -14,7 +14,7 @@ export const trackEvent = (eventName, properties = {}) => {
 }
 
 export const setUserProperties = (properties) => {
-    if (process.env.NODE_ENV !== 'production') {
+    if (import.meta.env.DEV) {
         console.log(`[Analytics] Set User Properties:`, properties)
     }
 }

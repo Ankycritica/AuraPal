@@ -28,6 +28,24 @@ export function Home() {
     document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })
   }
 
+  // ─── Luxe Light / Expensive Background Elements ────────────────────────────
+  const [stars] = React.useState(() => [...Array(120)].map(() => ({
+    top: Math.random() * 100 + '%',
+    left: Math.random() * 100 + '%',
+    width: Math.random() * 2 + 'px',
+    height: Math.random() * 2 + 'px',
+    opacity: Math.random() * 0.3,
+    duration: 2 + Math.random() * 4,
+    delay: Math.random() * 5
+  })))
+
+  const [meshLines] = React.useState(() => [...Array(20)].map(() => ({
+    x1: `${Math.random() * 100}%`,
+    y1: `${Math.random() * 100}%`,
+    x2: `${Math.random() * 100}%`,
+    y2: `${Math.random() * 100}%`,
+  })))
+
   return (
     <div className="bg-[#09090B] text-white selection:bg-ap-indigo/30 font-sans overflow-x-hidden relative">
       
@@ -79,22 +97,22 @@ export function Home() {
 
         {/* 🌌 High-Density Starfield (Fills the 'Empty' Void) */}
         <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-          {[...Array(120)].map((_, i) => (
+          {stars.map((star, i) => (
             <motion.div
               key={i}
-              initial={{ opacity: Math.random() * 0.3 }}
+              initial={{ opacity: star.opacity }}
               animate={{ opacity: [0.1, 0.4, 0.1] }}
               transition={{ 
-                duration: 2 + Math.random() * 4, 
+                duration: star.duration, 
                 repeat: Infinity, 
-                delay: Math.random() * 5 
+                delay: star.delay 
               }}
               className="absolute bg-white rounded-full"
               style={{ 
-                width: Math.random() * 2 + 'px', 
-                height: Math.random() * 2 + 'px',
-                top: Math.random() * 100 + '%', 
-                left: Math.random() * 100 + '%' 
+                width: star.width, 
+                height: star.height,
+                top: star.top, 
+                left: star.left 
               }}
             />
           ))}
@@ -108,13 +126,13 @@ export function Home() {
               <stop offset="100%" stopColor="#10B981" />
             </linearGradient>
           </defs>
-          {[...Array(20)].map((_, i) => (
+          {meshLines.map((line, i) => (
             <motion.line
               key={i}
-              x1={`${Math.random() * 100}%`}
-              y1={`${Math.random() * 100}%`}
-              x2={`${Math.random() * 100}%`}
-              y2={`${Math.random() * 100}%`}
+              x1={line.x1}
+              y1={line.y1}
+              x2={line.x2}
+              y2={line.y2}
               stroke="url(#meshGrad)"
               strokeWidth="0.5"
               animate={{ opacity: [0, 1, 0] }}

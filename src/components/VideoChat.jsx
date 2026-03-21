@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useToast } from './ui/use-toast'
+import { useToast } from './ui/use-toast-hook'
 import * as socketApi from '../api/socket'
 import { useAuthStore } from '../store/useStore'
 
@@ -67,13 +67,6 @@ export default function VideoChat({ config, onEnd }) {
   const cleanup = useCallback(() => {
     if (countdownRef.current) { clearInterval(countdownRef.current); countdownRef.current = null }
     if (graceTimerRef.current) { clearInterval(graceTimerRef.current); graceTimerRef.current = null }
-    if (pcRef.current) { pcRef.current.close(); pcRef.current = null }
-    if (localStreamRef.current) {
-      localStreamRef.current.getTracks().forEach(t => t.stop())
-      localStreamRef.current = null
-    }
-    if (localVideoRef.current) localVideoRef.current.srcObject = null
-    if (remoteVideoRef.current) { remoteVideoRef.current.srcObject = null; remoteVideoRef.current.classList.add('hidden') }
   }, [])
 
   // ─── ICE restart ────────────────────────────────────────────────────────────
@@ -155,10 +148,7 @@ export default function VideoChat({ config, onEnd }) {
 
     pcRef.current = pc
     return pc
-  }, [getSocket])
-
-
-
+  }, [getSocket, handleIceFailure, startCountdown])
 
   // ─── grace-window countdown UI ──────────────────────────────────────────────
   const startGraceCountdown = useCallback((windowMs) => {
@@ -256,7 +246,7 @@ export default function VideoChat({ config, onEnd }) {
     console.log('[Signal] session-not-found')
     setStatus('searching')
     startSearch()
-  }, [])
+  }, [startSearch])
 
   // ─── session-resumed (own reconnect confirmed) ───────────────────────────
   const handleSessionResumed = useCallback(({ partnerId }) => {
@@ -264,7 +254,6 @@ export default function VideoChat({ config, onEnd }) {
     toast({ title: '✅ Reconnected!', description: 'Resuming your video session.' })
     setStatus('connecting')
   }, [toast])
-
 
   // ─── mount ────────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -336,7 +325,7 @@ export default function VideoChat({ config, onEnd }) {
       }
       cleanup()
     }
-  }, []) // once on mount
+  }, [cleanup, getSocket, handleAnswer, handleCandidate, handleOffer, handlePartnerReconnected, handlePartnerReconnecting, handleRemoteEnd, handleSessionNotFound, handleSessionResumed, handleVideoReady, handleVideoSkipped, startSearch, toast])
 
   // ─── controls ───────────────────────────────────────────────────────────
   const handleSkip = () => {

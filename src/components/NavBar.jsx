@@ -5,7 +5,7 @@ import { Menu, X } from 'lucide-react'
 import { Button } from './ui/button'
 import { Avatar } from './ui/avatar'
 import { useAuthStore } from '../store/useStore'
-import { useToast } from './ui/Toast'
+import { useToast } from './ui/use-toast-hook'
 import { ThemeToggle } from '../ThemeToggle'
 import { useGuest } from '../hooks/useGuest'
 

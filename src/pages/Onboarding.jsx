@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../co
 import { InterestTagInput } from '../components/InterestTagInput'
 import { PrivacyToggle } from '../components/PrivacyToggle'
 import { useAuthStore } from '../store/useStore'
-import { useToast } from '../components/ui/use-toast'
+import { useToast } from '../components/ui/use-toast-hook'
 
 export function Onboarding() {
   const [step, setStep] = useState(1)

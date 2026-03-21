@@ -1,26 +1,11 @@
 // src/components/ui/use-toast.jsx
 import React, {
-  createContext,
-  useContext,
   useCallback,
   useState,
   useEffect,
 } from "react"
 
-const ToastContext = createContext(null)
-
-/**
- * useToast hook
- * - push({ title, description, variant, duration })
- * - remove(id)
- */
-export function useToast() {
-  const ctx = useContext(ToastContext)
-  if (!ctx) {
-    throw new Error("useToast must be used within a ToastProvider")
-  }
-  return ctx
-}
+import { ToastContext } from './toast-context'
 
 /**
  * ToastProvider

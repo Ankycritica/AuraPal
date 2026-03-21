@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Button } from './ui/button'
-import { useToast } from './ui/use-toast'
+import { useToast } from './ui/use-toast-hook'
 import { trackEvent } from '../lib/analytics'
 
 export function ReferralFlow() {

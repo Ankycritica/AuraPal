@@ -10,7 +10,7 @@ jest.mock('../../store/useStore', () => ({
 }))
 
 // Mock toast to avoid provider requirement
-jest.mock('../../components/ui/use-toast', () => ({
+jest.mock('../../components/ui/use-toast-hook', () => ({
   useToast: () => ({ push: jest.fn() }),
 }))
 

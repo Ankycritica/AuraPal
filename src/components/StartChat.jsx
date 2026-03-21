@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Crown, Video, MessageSquare, Plus, X as XIcon, Lock, Globe } from 'lucide-react'
 import { PremiumUpsellModal } from './PremiumUpsellModal'
-import { useToast } from './ui/use-toast'
+import { useToast } from './ui/use-toast-hook'
 
 const TRENDING_INTERESTS = [
   'anime', 'gaming', 'music', 'fitness', 'movies',

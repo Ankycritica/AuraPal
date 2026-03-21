@@ -1,13 +1,13 @@
-import { createContext, useContext, useState, useCallback } from 'react'
+import { createContext, useContext, useState, useCallback, useRef } from 'react'
 
 const ToastContext = createContext(null)
 
 export function ToastProvider({ children }) {
   const [toasts, setToasts] = useState([])
-  let toastCount = 0
+  const toastCountRef = useRef(0)
 
   const toast = useCallback(({ title, description, variant = 'default', duration = 5000 }) => {
-    const id = `toast-${toastCount++}`
+    const id = `toast-${toastCountRef.current++}`
     const newToast = {
       id,
       title,
@@ -38,11 +38,14 @@ export function ToastProvider({ children }) {
   )
 }
 
-export function useToast() {
+// Internal hook for within this file if needed, but we should move it for Fast Refresh
+function useToastInternal() {
   const context = useContext(ToastContext)
   if (!context) {
     return { toast: () => {}, dismiss: () => {}, toasts: [] }
   }
   return context
 }
+
+export { useToastInternal as useToast }
 

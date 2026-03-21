@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import * as socketApi from '../api/socket'
-import { useToast } from './ui/use-toast'
+import { useToast } from './ui/use-toast-hook'
 import { useAuthStore } from '../store/useStore'
 
 // ─── Emoji reactions ───────────────────────────────────────────────────────
@@ -103,7 +103,7 @@ export default function TextChat({ config, onEnd }) {
                 intentionalEnd.current = false
             }
         }
-    }, []) // eslint-disable-line react-hooks/exhaustive-deps — run exactly once
+    }, [config?.genderPreference, config?.interests, config?.isPremium, getSocket, toast])
 
     // ─── auto-scroll ───────────────────────────────────────────────────────────
     useEffect(() => {

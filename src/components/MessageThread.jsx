@@ -1,5 +1,5 @@
 // src/components/MessageThread.jsx
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useMemo } from 'react'
 import { formatDate } from '../lib/utils'
 import { useMessageStore } from '../store/useStore'
 import { useAuthStore } from '../store/useStore'
@@ -10,7 +10,7 @@ export function MessageThread({ conversationId }) {
   const messagesEndRef = useRef(null)
 
   const conversation = conversations.find((c) => c.id === conversationId)
-  const threadMessages = messages[conversationId] || []
+  const threadMessages = useMemo(() => messages[conversationId] || [], [messages, conversationId])
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })

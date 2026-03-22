@@ -87,7 +87,8 @@ export default function VideoChat({ config, onEnd }) {
   // ─── search ──────────────────────────────────────────────────────────────
   const startSearch = useCallback(() => {
     const s = getSocket()
-    const payload = { ...config, isPremium }
+    const identity = JSON.parse(localStorage.getItem('ap-guest-identity') || '{}')
+    const payload = { ...identity, ...config, isPremium }
 
     // Check if we have a pending session to resume first
     const sessionId = socketApi.SESSION_ID
@@ -378,7 +379,8 @@ export default function VideoChat({ config, onEnd }) {
     sessionStorage.removeItem('ap-video-partner')
     setStatus('searching')
     const s = getSocket()
-    s.emit('video-find-random', { ...config, isPremium })
+    const identity = JSON.parse(localStorage.getItem('ap-guest-identity') || '{}')
+    s.emit('video-find-random', { ...identity, ...config, isPremium })
     toast({ title: 'Searching…' })
   }
 

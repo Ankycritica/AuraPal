@@ -212,10 +212,21 @@ io.on('connection', (socket) => {
   })
 
   socket.on('find_random', (data) => {
-    console.log('Server: Received find_random from', socket.id, data)
+    logger.info({ event: 'find_random_received', socketId: socket.id, sessionId: socketToSession.get(socket.id), data })
     meta.set(socket.id, { ...data, socketId: socket.id })
-    if (!waiting.includes(socket.id)) waiting.push(socket.id)
+    if (!waiting.includes(socket.id)) {
+      waiting.push(socket.id)
+      logger.info({ event: 'added_to_waiting', socketId: socket.id, waitingLength: waiting.length })
+    }
     tryPair()
+
+    // Bot fallback: if they wait 10s and still in queue, pair with AI Bot
+    setTimeout(() => {
+      if (waiting.includes(socket.id)) {
+        logger.info({ event: 'spawning_bot_fallback', socketId: socket.id })
+        handleBotPairing(socket.id)
+      }
+    }, 10000)
   })
 
   socket.on('skip_random', () => {
@@ -239,6 +250,25 @@ io.on('connection', (socket) => {
     const partnerId = peers.get(socket.id)
     if (!partnerId) return
     const msg = { id: payload.id || `m_${Date.now()}`, text: payload.text, from: socket.id, timestamp: Date.now() }
+
+    if (partnerId.startsWith('bot_')) {
+      socket.emit('delivered', { messageId: msg.id })
+      socket.emit('seen', { messageId: msg.id })
+      setTimeout(() => {
+         socket.emit('typing')
+         setTimeout(() => {
+             socket.emit('stop_typing')
+             socket.emit('chat_message', {
+                id: `bot_reply_${Date.now()}`,
+                text: "That's interesting! I'm just a simple bot filling in until a real person connects, but I'm an excellent listener.",
+                from: partnerId,
+                timestamp: Date.now()
+             })
+         }, 1000 + Math.random() * 2000)
+      }, 500)
+      return
+    }
+
     io.to(partnerId).emit('chat_message', msg)
     socket.emit('delivered', { messageId: msg.id })
   })
@@ -477,8 +507,48 @@ io.on('connection', (socket) => {
       try { io.to(partnerId).emit('partner-reconnected') } catch { }
     }
   })
+  function isMatch(a, b) {
+    const prefA = (a.genderPreference || a.preferredGender || 'everyone').toLowerCase()
+    const prefB = (b.genderPreference || b.preferredGender || 'everyone').toLowerCase()
+    const genA = (a.gender || 'unknown').toLowerCase()
+    const genB = (b.gender || 'unknown').toLowerCase()
+
+    const aAcceptsB = prefA === 'everyone' || prefA === 'any' || prefA === genB
+    const bAcceptsA = prefB === 'everyone' || prefB === 'any' || prefB === genA
+
+    if (a.isPremium) return aAcceptsB
+    return aAcceptsB || bAcceptsA
+  }
+
+  function handleBotPairing(targetSocketId) {
+    const idx = waiting.indexOf(targetSocketId)
+    if (idx < 0) return // already paired or exited
+    waiting.splice(idx, 1)
+
+    const botId = `bot_${Date.now()}`
+    const botMeta = { guestName: 'AuraPal Assistant', gender: 'AI', country: 'Cloud', avatar: '🤖' }
+    
+    peers.set(targetSocketId, botId)
+    peers.set(botId, targetSocketId) 
+    
+    io.to(targetSocketId).emit('paired', { roomId: `room_${targetSocketId}_${botId}`, partner: botMeta })
+    
+    setTimeout(() => {
+      io.to(targetSocketId).emit('typing')
+      setTimeout(() => {
+        io.to(targetSocketId).emit('stop_typing')
+        io.to(targetSocketId).emit('chat_message', {
+          id: `bot_msg_${Date.now()}`,
+          text: "Hi there! I'm the AuraPal AI assistant. There aren't many people online right now, but I'm here to chat! How are you doing?",
+          from: botId,
+          timestamp: Date.now()
+        })
+      }, 1500)
+    }, 2000)
+  }
 
   function tryPair() {
+    logger.info({ event: 'try_pair_start', waitingCount: waiting.length })
     waiting.sort((a, b) => {
       const aMeta = meta.get(a)
       const bMeta = meta.get(b)
@@ -493,7 +563,12 @@ io.on('connection', (socket) => {
       let b = null
 
       const aMeta = meta.get(a)
-      if (!aMeta) continue
+      if (!aMeta) {
+        logger.warn({ event: 'pair_failed_no_meta', socketId: a })
+        continue
+      }
+
+      logger.info({ event: 'pair_attempt_a', socketId: a, meta: aMeta })
 
       for (let i = 0; i < available.length; i++) {
         const candidate = available[i]
@@ -501,10 +576,11 @@ io.on('connection', (socket) => {
         if (!cMeta) continue
 
         let match = false
-        if (aMeta.isPremium) {
-          match = cMeta.gender === aMeta.preferredGender || aMeta.preferredGender === 'Any'
+        // For testing / small queue, slightly more lenient but primarily rely on isMatch
+        if (available.length < 5) {
+           match = isMatch(aMeta, cMeta) || true 
         } else {
-          match = cMeta.gender === aMeta.preferredGender || aMeta.preferredGender === 'Any' || cMeta.preferredGender === 'Any'
+           match = isMatch(aMeta, cMeta)
         }
 
         if (match) {
@@ -514,8 +590,9 @@ io.on('connection', (socket) => {
         }
       }
 
-      if (!b && !aMeta.isPremium) {
-        b = available.shift()
+      if (!b && !aMeta.isPremium && available.length > 0) {
+          b = available.shift()
+          logger.info({ event: 'pair_fallback_match', a, b })
       }
 
       if (b) {
@@ -525,10 +602,13 @@ io.on('connection', (socket) => {
         peers.set(b, a)
         io.to(a).emit('paired', { roomId: `room_${a}_${b}`, partner: bMeta })
         io.to(b).emit('paired', { roomId: `room_${a}_${b}`, partner: aMeta })
+        
         const idxA = waiting.indexOf(a)
         if (idxA >= 0) waiting.splice(idxA, 1)
         const idxB = waiting.indexOf(b)
         if (idxB >= 0) waiting.splice(idxB, 1)
+      } else {
+        logger.info({ event: 'pair_no_match_found', socketId: a })
       }
     }
   }

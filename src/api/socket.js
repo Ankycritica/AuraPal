@@ -10,6 +10,9 @@ const isLocalNetwork = typeof window !== 'undefined' &&
 const getBaseUrl = () => {
   if (import.meta.env.VITE_SOCKET_URL) return import.meta.env.VITE_SOCKET_URL
   if (isLocalNetwork) return `http://${window.location.hostname}:3000`
+  if (typeof window !== 'undefined' && window.location.hostname.includes('vercel.app')) {
+     console.error('CRITICAL: WebSocket connection to a serverless domain (Vercel) will fail. Please set VITE_SOCKET_URL to your deployed Node.js backend (e.g. Render/Railway).')
+  }
   return '' // production uses same domain usually
 }
 
@@ -94,9 +97,10 @@ function safeEmit(event, payload, cb) {
   const s = getSocket()
   if (!s || !s.connected) {
     if (cb) cb({ ok: false, reason: 'disconnected' })
-    console.warn(`Cannot emit ${event} — socket disconnected`)
+    console.warn(`[Socket] Cannot emit ${event} — socket disconnected. Status: ${s ? 'exists' : 'missing'}`)
     return
   }
+  console.log(`[Socket] Emitting ${event}`, payload)
   s.emit(event, payload, cb)
 }
 

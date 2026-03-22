@@ -81,7 +81,9 @@ export default function TextChat({ config, onEnd }) {
 
         // Emit find_random — only do this once on real mount
         console.log('[TextChat] Emitting find_random')
+        const identity = JSON.parse(localStorage.getItem('ap-guest-identity') || '{}')
         s.emit('find_random', {
+            ...identity,
             isPremium: config?.isPremium ?? false,
             genderPreference: config?.genderPreference ?? 'everyone',
             interests: config?.interests ?? [],
@@ -164,7 +166,9 @@ export default function TextChat({ config, onEnd }) {
         const s = getSocket()
         s.emit('skip_random')
         // Re-queue immediately
+        const identity = JSON.parse(localStorage.getItem('ap-guest-identity') || '{}')
         s.emit('find_random', {
+            ...identity,
             isPremium: config?.isPremium ?? false,
             genderPreference: config?.genderPreference ?? 'everyone',
             interests: config?.interests ?? [],
@@ -188,7 +192,9 @@ export default function TextChat({ config, onEnd }) {
     const handleFindNew = useCallback(() => {
         const s = getSocket()
         mySocketId.current = s.id
+        const identity = JSON.parse(localStorage.getItem('ap-guest-identity') || '{}')
         s.emit('find_random', {
+            ...identity,
             isPremium: config?.isPremium ?? false,
             genderPreference: config?.genderPreference ?? 'everyone',
             interests: config?.interests ?? [],

@@ -1,0 +1,37 @@
+﻿
+> aurapal@0.0.0 dev
+> concurrently "vite" "node server/server.js"
+
+[0] Port 5173 is in use, trying another one...
+[0] 
+[0]   [32m[1mVITE[22m v7.2.4[39m  [2mready in [0m[1m1982[22m[2m[0m ms[22m
+[0] 
+[0]   [32mΓ₧£[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5174[22m/[39m
+[0]   [32mΓ₧£[39m  [1mNetwork[22m: [36mhttp://192.168.0.122:[1m5174[22m/[39m
+[1] {"level":"info","time":1774193234520,"pid":26864,"hostname":"Ankit","event":"server_start","port":3000}
+[1] {"level":"info","time":1774193234907,"pid":26864,"hostname":"Ankit","event":"socket_connect","socketId":"RKSQyrLrez62YJINAAAD"}
+[1] {"level":"info","time":1774193234908,"pid":26864,"hostname":"Ankit","event":"socket_connect","socketId":"Pj2-oLkqAEYZ93lnAAAE"}
+[1] {"level":"info","time":1774193234909,"pid":26864,"hostname":"Ankit","event":"socket_connect","socketId":"hdyzsfo8JPHAeCuCAAAF"}
+[1] {"level":"info","time":1774193234916,"pid":26864,"hostname":"Ankit","event":"session_registered","sessionId":"sess_1774192875489_2713qeq","socketId":"Pj2-oLkqAEYZ93lnAAAE"}
+[1] {"level":"info","time":1774193234916,"pid":26864,"hostname":"Ankit","event":"session_registered","sessionId":"sess_1774192902438_byjid57","socketId":"RKSQyrLrez62YJINAAAD"}
+[1] {"level":"info","time":1774193234917,"pid":26864,"hostname":"Ankit","event":"session_registered","sessionId":"sess_1774192902438_byjid57","socketId":"hdyzsfo8JPHAeCuCAAAF"}
+[1] {"level":"info","time":1774193237930,"pid":26864,"hostname":"Ankit","event":"socket_connect","socketId":"4BjPa1DkN6NdFqf7AAAH"}
+[1] {"level":"info","time":1774193237981,"pid":26864,"hostname":"Ankit","event":"session_registered","sessionId":"sess_1774192875489_2713qeq","socketId":"4BjPa1DkN6NdFqf7AAAH"}
+[1] {"level":"info","time":1774196965110,"pid":26864,"hostname":"Ankit","event":"socket_connect","socketId":"FBMxoY0fsLcMO_e-AAAJ"}
+[1] {"level":"info","time":1774196965144,"pid":26864,"hostname":"Ankit","event":"find_random_received","socketId":"FBMxoY0fsLcMO_e-AAAJ","data":{"isPremium":false,"genderPreference":"everyone","interests":[]}}
+[1] {"level":"info","time":1774196965146,"pid":26864,"hostname":"Ankit","event":"added_to_waiting","socketId":"FBMxoY0fsLcMO_e-AAAJ","waitingLength":1}
+[1] {"level":"info","time":1774196965159,"pid":26864,"hostname":"Ankit","event":"try_pair_start","waitingCount":1}
+[1] {"level":"info","time":1774196965161,"pid":26864,"hostname":"Ankit","event":"find_random_received","socketId":"FBMxoY0fsLcMO_e-AAAJ","data":{"isPremium":false,"genderPreference":"everyone","interests":[]}}
+[1] {"level":"info","time":1774196965161,"pid":26864,"hostname":"Ankit","event":"try_pair_start","waitingCount":1}
+[1] {"level":"info","time":1774196965161,"pid":26864,"hostname":"Ankit","event":"session_registered","sessionId":"sess_1774196948992_xe2oohl","socketId":"FBMxoY0fsLcMO_e-AAAJ"}
+[1] {"level":"info","time":1774196983161,"pid":26864,"hostname":"Ankit","event":"socket_connect","socketId":"u1mE5V-GKuxQFt42AAAL"}
+[1] {"level":"info","time":1774196983162,"pid":26864,"hostname":"Ankit","event":"find_random_received","socketId":"u1mE5V-GKuxQFt42AAAL","data":{"isPremium":false,"genderPreference":"everyone","interests":[]}}
+[1] {"level":"info","time":1774196983162,"pid":26864,"hostname":"Ankit","event":"added_to_waiting","socketId":"u1mE5V-GKuxQFt42AAAL","waitingLength":2}
+[1] {"level":"info","time":1774196983164,"pid":26864,"hostname":"Ankit","event":"try_pair_start","waitingCount":2}
+[1] {"level":"info","time":1774196983165,"pid":26864,"hostname":"Ankit","event":"pair_attempt_a","socketId":"FBMxoY0fsLcMO_e-AAAJ","meta":{"isPremium":false,"genderPreference":"everyone","interests":[],"socketId":"FBMxoY0fsLcMO_e-AAAJ"}}
+[1] {"level":"info","time":1774196983166,"pid":26864,"hostname":"Ankit","event":"pair_match_dev_override","a":"FBMxoY0fsLcMO_e-AAAJ","b":"u1mE5V-GKuxQFt42AAAL"}
+[1] {"level":"info","time":1774196983168,"pid":26864,"hostname":"Ankit","event":"paired","a":"FBMxoY0fsLcMO_e-AAAJ","b":"u1mE5V-GKuxQFt42AAAL","roomId":"room_FBMxoY0fsLcMO_e-AAAJ_u1mE5V-GKuxQFt42AAAL"}
+[1] {"level":"info","time":1774196983221,"pid":26864,"hostname":"Ankit","event":"find_random_received","socketId":"u1mE5V-GKuxQFt42AAAL","data":{"isPremium":false,"genderPreference":"everyone","interests":[]}}
+[1] {"level":"info","time":1774196983222,"pid":26864,"hostname":"Ankit","event":"added_to_waiting","socketId":"u1mE5V-GKuxQFt42AAAL","waitingLength":1}
+[1] {"level":"info","time":1774196983224,"pid":26864,"hostname":"Ankit","event":"try_pair_start","waitingCount":1}
+[1] {"level":"info","time":1774196983224,"pid":26864,"hostname":"Ankit","event":"session_registered","sessionId":"sess_1774196972031_53dbzxi","socketId":"u1mE5V-GKuxQFt42AAAL"}

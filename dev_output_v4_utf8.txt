@@ -1,0 +1,35 @@
+﻿
+> aurapal@0.0.0 dev
+> concurrently "vite" "node server/server.js"
+
+[0] Port 5173 is in use, trying another one...
+[0] Port 5174 is in use, trying another one...
+[0] 
+[0]   [32m[1mVITE[22m v7.2.4[39m  [2mready in [0m[1m697[22m[2m[0m ms[22m
+[0] 
+[0]   [32mΓ₧£[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5175[22m/[39m
+[0]   [32mΓ₧£[39m  [1mNetwork[22m: [36mhttp://192.168.0.122:[1m5175[22m/[39m
+[1] node:events:486
+[1]       throw er; // Unhandled 'error' event
+[1]       ^
+[1] 
+[1] Error: listen EADDRINUSE: address already in use :::3000
+[1]     at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+[1]     at listenInCluster (node:net:1997:12)
+[1]     at Server.listen (node:net:2102:7)
+[1]     at file:///C:/Users/donga/Documents/AuraPal/AuraPal/server/server.js:734:14
+[1]     at ModuleJob.run (node:internal/modules/esm/module_job:377:25)
+[1]     at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:671:26)
+[1]     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+[1] Emitted 'error' event on Server instance at:
+[1]     at emitErrorNT (node:net:1976:8)
+[1]     at process.processTicksAndRejections (node:internal/process/task_queues:89:21) {
+[1]   code: 'EADDRINUSE',
+[1]   errno: -4091,
+[1]   syscall: 'listen',
+[1]   address: '::',
+[1]   port: 3000
+[1] }
+[1] 
+[1] Node.js v24.11.1
+[1] node server/server.js exited with code 1

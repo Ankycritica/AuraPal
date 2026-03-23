@@ -45,6 +45,8 @@ function applyPendingListeners() {
 
 export function connect(identity) {
   if (_socket) return _socket   // always reuse — never create a second socket
+  
+  const isVercelNoBackend = getBaseUrl() === '' && typeof window !== 'undefined' && window.location.hostname.includes('vercel.app')
 
   _socket = io(DEFAULT_URL, {
     transports: ['websocket', 'polling'],
@@ -53,10 +55,87 @@ export function connect(identity) {
     reconnectionAttempts: 10,
     reconnectionDelay: 2000,
     reconnectionDelayMax: 10000,
+    timeout: 5000,
   })
+
+  // ─── OFFLINE BOT FALLBACK LOGIC ───
+  let offlineMode = false
+  let botTypingTimer = null
+  const localListeners = {}
+
+  const originalOn = _socket.on.bind(_socket)
+  _socket.on = function(event, cb) {
+    if (!localListeners[event]) localListeners[event] = []
+    localListeners[event].push(cb)
+    originalOn(event, cb)
+  }
+
+  const triggerLocal = (event, data) => {
+    if (localListeners[event]) localListeners[event].forEach(cb => cb(data))
+  }
+
+  const handleOfflineEmit = (event, payload, cb) => {
+    console.log('[OfflineEmit]', event, payload)
+    if (event === 'find_random' || event === 'video-find-random') {
+      setTimeout(() => {
+        const botMeta = { guestName: 'AuraPal Assistant', gender: 'AI', country: 'Local Data', avatar: '🤖' }
+        triggerLocal('paired', { roomId: 'offline_bot_room', partner: botMeta })
+        triggerLocal('video-ready', { partner: botMeta, turnConfig: {} })
+        
+        setTimeout(() => {
+          triggerLocal('typing')
+          setTimeout(() => {
+             triggerLocal('stop_typing')
+             triggerLocal('chat_message', {
+               id: `bot_init_${Date.now()}`,
+               text: "Hi there! I am the AuraPal Offline Assistant. It seems the main chat server is currently unreachable, so I've stepped in to keep you company and make sure you have someone to talk to!",
+               from: 'bot',
+               timestamp: Date.now()
+             })
+          }, 2000)
+        }, 1500)
+      }, 2000)
+    } else if (event === 'chat_message') {
+      clearTimeout(botTypingTimer)
+      botTypingTimer = setTimeout(() => {
+         triggerLocal('typing')
+         setTimeout(() => {
+             triggerLocal('stop_typing')
+             triggerLocal('chat_message', {
+                id: `bot_reply_${Date.now()}`,
+                text: "I am currently running in offline Demo Mode directly in your browser. To connect with real people, the developer needs to deploy the backend server.js to a platform like Render!",
+                from: 'bot',
+                timestamp: Date.now()
+             })
+         }, 1000 + Math.random() * 1500)
+      }, 1000)
+    }
+  }
+
+  const originalEmit = _socket.emit.bind(_socket)
+  _socket.emit = function(event, payload, cb) {
+    if (offlineMode || isVercelNoBackend) {
+       handleOfflineEmit(event, payload, cb)
+       return
+    }
+    
+    // If not connected yet, intercept search events to provide a safety timeout
+    if (!_socket.connected && (event === 'find_random' || event === 'video-find-random')) {
+       setTimeout(() => {
+          if (!_socket.connected && !offlineMode) {
+             console.warn('[Offline Mode] Server unreachable after 5s. Switching to local offline bot.')
+             offlineMode = true
+             handleOfflineEmit(event, payload, cb)
+          }
+       }, 5000)
+    }
+    
+    originalEmit(event, payload, cb)
+  }
 
   _socket.on('connect', () => {
     console.log('[Socket] connected id:', _socket.id)
+    offlineMode = false
     applyPendingListeners()
     try {
       _socket.emit('identify', {

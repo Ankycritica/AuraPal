@@ -19,6 +19,10 @@ import ChatTest from './pages/ChatTest'
 import { Settings } from './pages/Settings'
 import { PremiumCheckout } from './pages/PremiumCheckout'
 import FriendRequestListener from './components/FriendRequestListener'
+import { TermsOfService } from './pages/TermsOfService'
+import { PrivacyPolicy } from './pages/PrivacyPolicy'
+import { CommunityGuidelines } from './pages/CommunityGuidelines'
+import SEOLanding from './pages/SEOLanding'
 
 function App() {
   useEffect(() => {
@@ -33,14 +37,18 @@ function App() {
         <Layout>
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/omegle-alternative" element={<Home />} />
-            <Route path="/random-chat" element={<Home />} />
-            <Route path="/chat-with-strangers" element={<Home />} />
-            <Route path="/anonymous-chat" element={<Home />} />
+            <Route path="/omegle-alternative" element={<SEOLanding />} />
+            <Route path="/random-chat" element={<SEOLanding />} />
+            <Route path="/chat-with-strangers" element={<SEOLanding />} />
+            <Route path="/anonymous-chat" element={<SEOLanding />} />
+            <Route path="/chat-platform" element={<SEOLanding />} />
             <Route path="/about" element={<About />} />
             <Route path="/features" element={<Features />} />
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/safety" element={<Safety />} />
+            <Route path="/terms" element={<TermsOfService />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/guidelines" element={<CommunityGuidelines />} />
 
             {/* Chat system entry - NO PROTECTION, user can enter anytime */}
             <Route path="/chat" element={<Chat />} />

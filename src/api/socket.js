@@ -45,8 +45,6 @@ function applyPendingListeners() {
 
 export function connect(identity) {
   if (_socket) return _socket   // always reuse — never create a second socket
-  
-  const isVercelNoBackend = getBaseUrl() === '' && typeof window !== 'undefined' && window.location.hostname.includes('vercel.app')
 
   _socket = io(DEFAULT_URL, {
     transports: ['websocket', 'polling'],

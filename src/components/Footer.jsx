@@ -15,10 +15,8 @@ export function Footer() {
 
   return (
     <footer className="relative pt-12 pb-8 overflow-hidden">
-      {/* 🌌 Design Requirements: Dark gradient background (deep navy → teal) */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#020617] via-[#0f172a] to-[#0d9488]/20 z-0" />
       
-      {/* 🌌 Design Requirements: Small star-like dots scattered across the background */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
         {stars.map((star, i) => (
           <motion.div
@@ -48,8 +46,13 @@ export function Footer() {
           <div className="flex flex-col gap-4">
             <h3 className="text-xl font-black text-white tracking-tight">AuraPal</h3>
             <p className="text-sm text-white/50 leading-relaxed font-medium">
-              Privacy-first community for real connection.
+              Conversations Without Boundaries. A platform for meaningful, anonymous conversations and global social discovery.
             </p>
+            <div className="mt-2 p-3 rounded-xl bg-white/5 border border-white/5">
+              <p className="text-[11px] text-white/40 font-semibold leading-relaxed">
+                This is NOT a dating platform. No adult content allowed. Strict moderation enforced.
+              </p>
+            </div>
           </div>
 
           {/* Column 2 — Product */}
@@ -69,6 +72,11 @@ export function Footer() {
               <li>
                 <Link to="/safety" className="text-white/50 hover:text-white transition-colors duration-300">
                   Safety
+                </Link>
+              </li>
+              <li>
+                <Link to="/chat" className="text-white/50 hover:text-white transition-colors duration-300">
+                  Start Chatting
                 </Link>
               </li>
             </ul>
@@ -105,15 +113,19 @@ export function Footer() {
                   Terms of Service
                 </Link>
               </li>
+              <li>
+                <Link to="/guidelines" className="text-white/50 hover:text-white transition-colors duration-300">
+                  Safety Policy
+                </Link>
+              </li>
             </ul>
           </div>
 
         </div>
 
-        {/* BOTTOM COPYRIGHT LINE: Centered text */}
         <div className="mt-20 pt-8 border-t border-white/5 text-center">
           <p className="text-[11px] font-black text-white/30 tracking-[0.3em] uppercase">
-            © 2026 AuraPal. All rights reserved.
+            © 2026 AuraPal. All rights reserved. · Conversations Without Boundaries
           </p>
         </div>
       </div>

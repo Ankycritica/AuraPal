@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { Button } from './ui/button'
 import { useAuthStore } from '../store/useStore'
 import {
@@ -8,7 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu'
-import { Menu, User, LogOut, Settings, MessageSquare } from 'lucide-react'
+import { Menu, User, LogOut, Settings, MessageSquare, ArrowRight } from 'lucide-react'
 import { useState } from 'react'
 import logo from '../assets/AURAPAL.png'
 import { Footer } from './Footer'
@@ -16,7 +16,9 @@ import { Footer } from './Footer'
 export function Layout({ children }) {
   const { isAuthenticated, user, signOut } = useAuthStore()
   const navigate = useNavigate()
+  const location = useLocation()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const isHomePage = location.pathname === '/' || ['/omegle-alternative', '/random-chat', '/anonymous-chat', '/chat-with-strangers', '/chat-platform'].includes(location.pathname)
 
   const handleSignOut = () => {
     signOut()
@@ -261,6 +263,18 @@ export function Layout({ children }) {
       <main id="main-content" className="flex-1">
         {children}
       </main>
+
+      {/* Mobile Sticky CTA — only on home/landing pages */}
+      {isHomePage && (
+        <div className="mobile-sticky-cta sm:hidden">
+          <button
+            onClick={() => navigate('/chat')}
+            className="w-full h-12 rounded-xl bg-gradient-to-r from-ap-indigo to-ap-emerald text-white font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition-transform animate-pulse-glow"
+          >
+            Start Chatting Now <ArrowRight size={16} strokeWidth={3} />
+          </button>
+        </div>
+      )}
 
       <Footer />
     </div>

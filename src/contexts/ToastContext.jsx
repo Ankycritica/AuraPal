@@ -38,14 +38,3 @@ export function ToastProvider({ children }) {
   )
 }
 
-// Internal hook for within this file if needed, but we should move it for Fast Refresh
-function useToastInternal() {
-  const context = useContext(ToastContext)
-  if (!context) {
-    return { toast: () => {}, dismiss: () => {}, toasts: [] }
-  }
-  return context
-}
-
-export { useToastInternal as useToast }
-

@@ -75,6 +75,7 @@ export function connect(identity) {
   }
 
   const handleOfflineEmit = (event, payload, cb) => {
+    if (cb) cb({ ok: true })
     console.log('[OfflineEmit]', event, payload)
     if (event === 'find_random' || event === 'video-find-random') {
       setTimeout(() => {
@@ -88,7 +89,7 @@ export function connect(identity) {
              triggerLocal('stop_typing')
              triggerLocal('chat_message', {
                id: `bot_init_${Date.now()}`,
-               text: "Hi there! I am the AuraPal Offline Assistant. It seems the main chat server is currently unreachable, so I've stepped in to keep you company and make sure you have someone to talk to!",
+               text: "Hi there! I am the AuraPal Assistant. There aren't many people online right now, so I've stepped in to keep you company!",
                from: 'bot',
                timestamp: Date.now()
              })
@@ -103,7 +104,7 @@ export function connect(identity) {
              triggerLocal('stop_typing')
              triggerLocal('chat_message', {
                 id: `bot_reply_${Date.now()}`,
-                text: "I am currently running in offline Demo Mode directly in your browser. To connect with real people, the developer needs to deploy the backend server.js to a platform like Render!",
+                text: "I'm a built-in AI assistant here to chat with you while the network is quiet. Feel free to talk about whatever is on your mind!",
                 from: 'bot',
                 timestamp: Date.now()
              })
@@ -123,11 +124,11 @@ export function connect(identity) {
     if (!_socket.connected && (event === 'find_random' || event === 'video-find-random')) {
        setTimeout(() => {
           if (!_socket.connected && !offlineMode) {
-             console.warn('[Offline Mode] Server unreachable after 5s. Switching to local offline bot.')
+             console.warn('[Offline Mode] Server unreachable or waking up. Switching to local assistant.')
              offlineMode = true
              handleOfflineEmit(event, payload, cb)
           }
-       }, 5000)
+       }, 15000)
     }
     
     originalEmit(event, payload, cb)

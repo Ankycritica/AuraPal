@@ -58,85 +58,8 @@ export function connect(identity) {
     timeout: 5000,
   })
 
-  // ─── OFFLINE BOT FALLBACK LOGIC ───
-  let offlineMode = false
-  let botTypingTimer = null
-  const localListeners = {}
-
-  const originalOn = _socket.on.bind(_socket)
-  _socket.on = function(event, cb) {
-    if (!localListeners[event]) localListeners[event] = []
-    localListeners[event].push(cb)
-    originalOn(event, cb)
-  }
-
-  const triggerLocal = (event, data) => {
-    if (localListeners[event]) localListeners[event].forEach(cb => cb(data))
-  }
-
-  const handleOfflineEmit = (event, payload, cb) => {
-    if (cb) cb({ ok: true })
-    console.log('[OfflineEmit]', event, payload)
-    if (event === 'find_random' || event === 'video-find-random') {
-      setTimeout(() => {
-        const botMeta = { guestName: 'AuraPal Assistant', gender: 'AI', country: 'Local Data', avatar: '🤖' }
-        triggerLocal('paired', { roomId: 'offline_bot_room', partner: botMeta })
-        triggerLocal('video-ready', { partner: botMeta, turnConfig: {} })
-        
-        setTimeout(() => {
-          triggerLocal('typing')
-          setTimeout(() => {
-             triggerLocal('stop_typing')
-             triggerLocal('chat_message', {
-               id: `bot_init_${Date.now()}`,
-               text: "Hi there! I am the AuraPal Assistant. There aren't many people online right now, so I've stepped in to keep you company!",
-               from: 'bot',
-               timestamp: Date.now()
-             })
-          }, 2000)
-        }, 1500)
-      }, 2000)
-    } else if (event === 'chat_message') {
-      clearTimeout(botTypingTimer)
-      botTypingTimer = setTimeout(() => {
-         triggerLocal('typing')
-         setTimeout(() => {
-             triggerLocal('stop_typing')
-             triggerLocal('chat_message', {
-                id: `bot_reply_${Date.now()}`,
-                text: "I'm a built-in AI assistant here to chat with you while the network is quiet. Feel free to talk about whatever is on your mind!",
-                from: 'bot',
-                timestamp: Date.now()
-             })
-         }, 1000 + Math.random() * 1500)
-      }, 1000)
-    }
-  }
-
-  const originalEmit = _socket.emit.bind(_socket)
-  _socket.emit = function(event, payload, cb) {
-    if (offlineMode || isVercelNoBackend) {
-       handleOfflineEmit(event, payload, cb)
-       return
-    }
-    
-    // If not connected yet, intercept search events to provide a safety timeout
-    if (!_socket.connected && (event === 'find_random' || event === 'video-find-random')) {
-       setTimeout(() => {
-          if (!_socket.connected && !offlineMode) {
-             console.warn('[Offline Mode] Server unreachable or waking up. Switching to local assistant.')
-             offlineMode = true
-             handleOfflineEmit(event, payload, cb)
-          }
-       }, 15000)
-    }
-    
-    originalEmit(event, payload, cb)
-  }
-
   _socket.on('connect', () => {
     console.log('[Socket] connected id:', _socket.id)
-    offlineMode = false
     applyPendingListeners()
     try {
       _socket.emit('identify', {

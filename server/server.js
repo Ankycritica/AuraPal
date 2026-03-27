@@ -86,7 +86,7 @@ app.use(cors({
         origin.match(/^http:\/\/192\.168\./) || 
         origin.match(/^http:\/\/10\./) || 
         origin.match(/vercel\.app$/) || 
-        origin === 'https://aurapal.org') {
+        origin.match(/aurapal\.org$/)) {
       return callback(null, true)
     }
     callback(new Error('Not allowed by CORS'))
@@ -130,7 +130,7 @@ const io = new Server(httpServer, {
           origin.match(/^http:\/\/192\.168\./) || 
           origin.match(/^http:\/\/10\./) || 
           origin.match(/vercel\.app$/) || 
-          origin === 'https://aurapal.org') {
+          origin.match(/aurapal\.org$/)) {
         return callback(null, true)
       }
       callback(new Error('Not allowed by CORS'))

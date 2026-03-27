@@ -1,19 +1,30 @@
 import { io } from 'socket.io-client'
 
-// When running locally on network (e.g., 192.168.x.x), we need to connect to the same host on port 3000
-// rather than defaulting strictly to localhost. For production (Vercel), it should relative.
-const isLocalNetwork = typeof window !== 'undefined' && 
-  (window.location.hostname.includes('192.168.') || 
-   window.location.hostname.includes('10.') ||
-   window.location.hostname === 'localhost')
-
 const getBaseUrl = () => {
-  if (import.meta.env.VITE_SOCKET_URL) return import.meta.env.VITE_SOCKET_URL
-  if (isLocalNetwork) return `http://${window.location.hostname}:3000`
+  // If we are strictly on vercel, we MUST point to a deployed Node backend.
   if (typeof window !== 'undefined' && window.location.hostname.includes('vercel.app')) {
-     console.error('CRITICAL: WebSocket connection to a serverless domain (Vercel) will fail. Please set VITE_SOCKET_URL to your deployed Node.js backend (e.g. Render/Railway).')
+     console.error('CRITICAL: WebSocket connection to Vercel will fail. Pointing to Render fallback.')
+     return 'https://aurapal-socket-server.onrender.com'
   }
-  return '' // production uses same domain usually
+
+  // If deployed to aurapal.org, we either use the same domain (if backend is hosted together) or Render backend
+  if (typeof window !== 'undefined' && window.location.hostname === 'www.aurapal.org') {
+     return 'https://aurapal-socket-server.onrender.com'
+  }
+
+  const isLocalNetwork = typeof window !== 'undefined' && 
+    (window.location.hostname.includes('192.168.') || 
+     window.location.hostname.includes('10.') ||
+     window.location.hostname === 'localhost')
+
+  // Use explicit env var ONLY if it isn't hardcoded to localhost when we are on a network IP
+  const envUrl = import.meta.env.VITE_SOCKET_URL
+  if (envUrl && !(envUrl.includes('localhost') && isLocalNetwork && window.location.hostname !== 'localhost')) {
+     return envUrl
+  }
+
+  if (isLocalNetwork) return `http://${window.location.hostname}:3000`
+  return '' 
 }
 
 const DEFAULT_URL = getBaseUrl()

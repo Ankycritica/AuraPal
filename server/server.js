@@ -79,19 +79,10 @@ const JWT_SECRET = process.env.JWT_SECRET || 'devsecret'
 const app = express()
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true)
-    // Allow localhost, local network IPs, and any Vercel domain
-    if (origin.match(/^http:\/\/localhost/) || 
-        origin.match(/^http:\/\/192\.168\./) || 
-        origin.match(/^http:\/\/10\./) || 
-        origin.match(/vercel\.app$/) || 
-        origin.match(/aurapal\.org$/)) {
-      return callback(null, true)
-    }
-    callback(new Error('Not allowed by CORS'))
+    // Allow any origin for maximum compatibility with the socket server
+    callback(null, true)
   },
-  methods: ["GET", "POST"],
+  methods: ["GET", "POST", "OPTIONS"],
   credentials: true
 }))
 app.use(express.json())
@@ -125,17 +116,9 @@ const httpServer = createServer(app)
 const io = new Server(httpServer, {
   cors: {
     origin: function (origin, callback) {
-      if (!origin) return callback(null, true)
-      if (origin.match(/^http:\/\/localhost/) || 
-          origin.match(/^http:\/\/192\.168\./) || 
-          origin.match(/^http:\/\/10\./) || 
-          origin.match(/vercel\.app$/) || 
-          origin.match(/aurapal\.org$/)) {
-        return callback(null, true)
-      }
-      callback(new Error('Not allowed by CORS'))
+      callback(null, true)
     },
-    methods: ["GET", "POST"],
+    methods: ["GET", "POST", "OPTIONS"],
     credentials: true,
     transports: ["websocket", "polling"]
   }
@@ -549,67 +532,40 @@ io.on('connection', (socket) => {
 
   function tryPair() {
     logger.info({ event: 'try_pair_start', waitingCount: waiting.length })
-    waiting.sort((a, b) => {
-      const aMeta = meta.get(a)
-      const bMeta = meta.get(b)
-      if (aMeta?.isPremium && !bMeta?.isPremium) return -1
-      if (!aMeta?.isPremium && bMeta?.isPremium) return 1
-      return 0
-    })
 
-    const available = [...waiting]
-    while (available.length >= 2) {
-      let a = available.shift()
-      let b = null
+    // If there are less than 2 people waiting, we can't pair anyone
+    while (waiting.length >= 2) {
+      // 1. Grab the person who has been waiting the longest (FIFO)
+      const userA = waiting.shift()
+      const metaA = meta.get(userA)
 
-      const aMeta = meta.get(a)
-      if (!aMeta) {
-        logger.warn({ event: 'pair_failed_no_meta', socketId: a })
+      // (Safety check in case they disconnected right before this loop)
+      if (!metaA) {
+        logger.warn({ event: 'pair_failed_no_meta', socketId: userA })
         continue
       }
 
-      logger.info({ event: 'pair_attempt_a', socketId: a, meta: aMeta })
+      // 2. Grab the next person in line
+      const userB = waiting.shift()
+      const metaB = meta.get(userB)
 
-      for (let i = 0; i < available.length; i++) {
-        const candidate = available[i]
-        const cMeta = meta.get(candidate)
-        if (!cMeta) continue
-
-        let match = false
-        // For testing / small queue, slightly more lenient but primarily rely on isMatch
-        if (available.length < 5) {
-           match = isMatch(aMeta, cMeta) || true 
-        } else {
-           match = isMatch(aMeta, cMeta)
-        }
-
-        if (match) {
-          b = candidate
-          available.splice(i, 1)
-          break
-        }
+      if (!metaB) {
+        logger.warn({ event: 'pair_failed_no_meta', socketId: userB })
+        // Put userA back at the FRONT of the line
+        waiting.unshift(userA)
+        continue
       }
 
-      if (!b && !aMeta.isPremium && available.length > 0) {
-          b = available.shift()
-          logger.info({ event: 'pair_fallback_match', a, b })
-      }
-
-      if (b) {
-        const bMeta = meta.get(b)
-        logger.info({ event: 'paired', a, b, roomId: `room_${a}_${b}` })
-        peers.set(a, b)
-        peers.set(b, a)
-        io.to(a).emit('paired', { roomId: `room_${a}_${b}`, partner: bMeta })
-        io.to(b).emit('paired', { roomId: `room_${a}_${b}`, partner: aMeta })
-        
-        const idxA = waiting.indexOf(a)
-        if (idxA >= 0) waiting.splice(idxA, 1)
-        const idxB = waiting.indexOf(b)
-        if (idxB >= 0) waiting.splice(idxB, 1)
-      } else {
-        logger.info({ event: 'pair_no_match_found', socketId: a })
-      }
+      // 3. Immediately pair them (Instant matching, ignoring gender/premium for queue speed)
+      logger.info({ event: 'paired_instant', a: userA, b: userB })
+      const roomId = `room_${userA}_${Date.now()}`
+      
+      peers.set(userA, userB)
+      peers.set(userB, userA)
+      
+      // Notify both sockets
+      io.to(userA).emit('paired', { roomId, partner: metaB })
+      io.to(userB).emit('paired', { roomId, partner: metaA })
     }
   }
 
@@ -624,67 +580,38 @@ io.on('connection', (socket) => {
   // VIDEO PAIRING LOGIC
   // -----------------------------
   function tryVideoPair() {
-    videoWaiting.sort((a, b) => {
-      const aMeta = videoMeta.get(a)
-      const bMeta = videoMeta.get(b)
-      if (aMeta?.isPremium && !bMeta?.isPremium) return -1
-      if (!aMeta?.isPremium && bMeta?.isPremium) return 1
-      return 0
-    })
+    // If there are less than 2 people waiting, we can't pair anyone
+    while (videoWaiting.length >= 2) {
+      // 1. Grab the person who has been waiting the longest (FIFO)
+      const userA = videoWaiting.shift()
+      const metaA = videoMeta.get(userA)
 
-    const available = [...videoWaiting]
-    while (available.length >= 2) {
-      let a = available.shift()
-      let b = null
+      // (Safety check in case they disconnected right before this loop)
+      if (!metaA) continue
 
-      const aMeta = videoMeta.get(a)
-      if (!aMeta) continue
+      // 2. Grab the next person in line
+      const userB = videoWaiting.shift()
+      const metaB = videoMeta.get(userB)
 
-      for (let i = 0; i < available.length; i++) {
-        const candidate = available[i]
-        const cMeta = videoMeta.get(candidate)
-        if (!cMeta) continue
-
-        let match = false
-        if (aMeta.isPremium) {
-          match = cMeta.gender === aMeta.genderPreference || aMeta.genderPreference === 'everyone' || !aMeta.genderPreference
-        } else {
-          match = cMeta.gender === aMeta.genderPreference || aMeta.genderPreference === 'everyone' || !aMeta.genderPreference || cMeta.genderPreference === 'everyone' || !cMeta.genderPreference
-        }
-
-        if (match) {
-          b = candidate
-          available.splice(i, 1)
-          break
-        }
-      }
-
-      if (!b && !aMeta.isPremium) {
-        b = available.shift()
-      } else if (!b && aMeta.isPremium) {
+      if (!metaB) {
+        // Put userA back at the FRONT of the line
+        videoWaiting.unshift(userA)
         continue
       }
 
-      if (b) {
-        const bMeta = videoMeta.get(b)
-        videoPeers.set(a, b)
-        videoPeers.set(b, a)
+      // 3. Immediately pair them (Instant matching)
+      videoPeers.set(userA, userB)
+      videoPeers.set(userB, userA)
 
-        const now = Date.now()
-        if (aMeta.joinTime) videoWaitTimeHistogram.observe((now - aMeta.joinTime) / 1000)
-        if (bMeta.joinTime) videoWaitTimeHistogram.observe((now - bMeta.joinTime) / 1000)
-        matchSuccessCounter.inc()
+      const now = Date.now()
+      if (metaA.joinTime) videoWaitTimeHistogram.observe((now - metaA.joinTime) / 1000)
+      if (metaB.joinTime) videoWaitTimeHistogram.observe((now - metaB.joinTime) / 1000)
+      matchSuccessCounter.inc()
 
-        io.to(a).emit('video-ready', { partner: bMeta, turnConfig })
-        io.to(b).emit('video-ready', { partner: aMeta, turnConfig })
+      io.to(userA).emit('video-ready', { partner: metaB, turnConfig })
+      io.to(userB).emit('video-ready', { partner: metaA, turnConfig })
 
-        const idxA = videoWaiting.indexOf(a)
-        if (idxA >= 0) videoWaiting.splice(idxA, 1)
-        const idxB = videoWaiting.indexOf(b)
-        if (idxB >= 0) videoWaiting.splice(idxB, 1)
-
-        videoQueueLengthGauge.set(videoWaiting.length)
-      }
+      videoQueueLengthGauge.set(videoWaiting.length)
     }
   }
 

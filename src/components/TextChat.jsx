@@ -78,10 +78,17 @@ export default function TextChat({ config, onEnd }) {
         s.on('typing', onTyping)
         s.on('stop_typing', onStopTyping)
         s.on('unpaired', onUnpaired)
+        s.on('connect_error', (err) => {
+            console.error('[TextChat] Connection error:', err)
+            setStatus('ended')
+            setMessages([sysMsg('❌ Connection to server failed. Please check your internet or try again later.')])
+        })
 
         // Emit find_random — only do this once on real mount
         console.log('[TextChat] Emitting find_random')
         const identity = JSON.parse(localStorage.getItem('ap-guest-identity') || '{}')
+        
+        // Wait until connected before emitting, or socket.io will buffer it (which is fine, but we need to start timeout)
         s.emit('find_random', {
             ...identity,
             isPremium: config?.isPremium ?? false,
@@ -89,14 +96,28 @@ export default function TextChat({ config, onEnd }) {
             interests: config?.interests ?? [],
         })
         setMessages([sysMsg('🔍 Searching for a stranger…')])
+        
+        const searchTimeout = setTimeout(() => {
+            if (s && s.connected) {
+                console.warn('[TextChat] Matchmaking timeout reached')
+                s.emit('exit')
+                setStatus('ended')
+                setMessages([sysMsg('⏱️ Nobody is available right now. Please try again!')])
+            }
+        }, 15000)
+
+        // Clear timeout if paired
+        s.once('paired', () => clearTimeout(searchTimeout))
 
         return () => {
+            clearTimeout(searchTimeout)
             // Remove event listeners always
             s.off('paired', onPaired)
             s.off('chat_message', onMessage)
             s.off('typing', onTyping)
             s.off('stop_typing', onStopTyping)
             s.off('unpaired', onUnpaired)
+            s.off('connect_error')
 
             // Only emit exit when the user deliberately ends — NOT on StrictMode cleanup
             if (intentionalEnd.current) {
@@ -177,6 +198,17 @@ export default function TextChat({ config, onEnd }) {
         setPeerInfo(null)
         setIsTyping(false)
         setMessages([sysMsg('⏭ Skipped — searching for a new stranger…')])
+
+        const searchTimeout = setTimeout(() => {
+            if (s && s.connected) {
+                console.warn('[TextChat] Matchmaking timeout reached (Skip)')
+                s.emit('exit')
+                setStatus('ended')
+                setMessages([sysMsg('⏱️ Nobody is available right now. Please try again!')])
+            }
+        }, 15000)
+
+        s.once('paired', () => clearTimeout(searchTimeout))
     }, [config, getSocket])
 
     // ─── end (intentional) ────────────────────────────────────────────────────
@@ -203,6 +235,17 @@ export default function TextChat({ config, onEnd }) {
         setPeerInfo(null)
         setIsTyping(false)
         setMessages([sysMsg('🔍 Searching for a stranger…')])
+        
+        const searchTimeout = setTimeout(() => {
+            if (s && s.connected) {
+                console.warn('[TextChat] Matchmaking timeout reached (Find New)')
+                s.emit('exit')
+                setStatus('ended')
+                setMessages([sysMsg('⏱️ Nobody is available right now. Please try again!')])
+            }
+        }, 15000)
+
+        s.once('paired', () => clearTimeout(searchTimeout))
     }, [config, getSocket])
 
     // ─── emoji reaction ───────────────────────────────────────────────────────

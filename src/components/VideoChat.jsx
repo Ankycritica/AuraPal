@@ -103,7 +103,19 @@ export default function VideoChat({ config, onEnd }) {
     console.log('[Signal] Emitting video-find-random', payload)
     setStatus('searching')
     s.emit('video-find-random', payload)
-  }, [config, getSocket, isPremium])
+    
+    // Add Timeout
+    const searchTimeout = setTimeout(() => {
+        if (s && s.connected) {
+            console.warn('[VideoChat] Matchmaking timeout reached')
+            s.emit('video-end')
+            setStatus('ended')
+            toast({ title: 'Nobody is available right now', description: 'Please try finding a new stranger.', variant: 'destructive' })
+        }
+    }, 15000)
+
+    s.once('video-ready', () => clearTimeout(searchTimeout))
+  }, [config, getSocket, isPremium, toast])
 
   // ─── peer connection ────────────────────────────────────────────────────────
   const createPC = useCallback((iceRestart = false) => {
@@ -275,6 +287,12 @@ export default function VideoChat({ config, onEnd }) {
 
       const s = getSocket()
 
+      const handleConnectError = (err) => {
+        console.error('[VideoChat] Connection error:', err)
+        setStatus('error')
+        toast({ title: 'Connection failed', description: 'Could not connect to the matchmaking server.', variant: 'destructive' })
+      }
+
       // Wire all events
       s.off('video-ready', handleVideoReady)
       s.off('video-offer', handleOffer)
@@ -286,6 +304,7 @@ export default function VideoChat({ config, onEnd }) {
       s.off('partner-reconnected', handlePartnerReconnected)
       s.off('session-not-found', handleSessionNotFound)
       s.off('session-resumed', handleSessionResumed)
+      s.off('connect_error', handleConnectError)
 
       s.on('video-ready', handleVideoReady)
       s.on('video-offer', handleOffer)
@@ -297,6 +316,7 @@ export default function VideoChat({ config, onEnd }) {
       s.on('partner-reconnected', handlePartnerReconnected)
       s.on('session-not-found', handleSessionNotFound)
       s.on('session-resumed', handleSessionResumed)
+      s.on('connect_error', handleConnectError)
 
       startSearch()
     }
@@ -317,6 +337,7 @@ export default function VideoChat({ config, onEnd }) {
         s.off('partner-reconnected', handlePartnerReconnected)
         s.off('session-not-found', handleSessionNotFound)
         s.off('session-resumed', handleSessionResumed)
+        s.off('connect_error')
 
         if (intentionalEnd.current) {
           console.log('[Signal] Emitting video-end (intentional)')

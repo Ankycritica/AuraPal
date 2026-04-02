@@ -648,13 +648,10 @@ import { fileURLToPath } from 'url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
-// Serve static frontend in production
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../dist')))
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../dist/index.html'))
-  })
-}
+// 404 handler for any unbound requests (prevents Express v5 path errors)
+app.use((req, res) => {
+  res.status(404).send("Not Found");
+});
 
 const PORT = process.env.PORT || 3000
 if (process.env.NODE_ENV !== 'test') {

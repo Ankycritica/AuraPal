@@ -4,12 +4,12 @@ const getBaseUrl = () => {
   // If we are strictly on vercel, we MUST point to a deployed Node backend.
   if (typeof window !== 'undefined' && window.location.hostname.includes('vercel.app')) {
      console.error('CRITICAL: WebSocket connection to Vercel will fail. Pointing to Render fallback.')
-     return 'https://aurapal-socket-server.onrender.com'
+     return 'https://aurapal.onrender.com'
   }
 
   // If deployed to aurapal.org, we either use the same domain (if backend is hosted together) or Render backend
   if (typeof window !== 'undefined' && window.location.hostname === 'www.aurapal.org') {
-     return 'https://aurapal-socket-server.onrender.com'
+     return 'https://aurapal.onrender.com'
   }
 
   const isLocalNetwork = typeof window !== 'undefined' && 

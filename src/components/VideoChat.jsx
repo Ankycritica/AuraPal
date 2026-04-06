@@ -26,6 +26,7 @@ export default function VideoChat({ config, onEnd }) {
   const graceTimerRef = useRef(null)
   const graceWindowRef = useRef(30000) // default, updated from server
   const intentionalEnd = useRef(false)
+  const searchTimeoutRef = useRef(null)
 
   const [status, setStatus] = useState('initial')
   const [countdown, setCountdown] = useState(0)
@@ -67,6 +68,7 @@ export default function VideoChat({ config, onEnd }) {
   const cleanup = useCallback(() => {
     if (countdownRef.current) { clearInterval(countdownRef.current); countdownRef.current = null }
     if (graceTimerRef.current) { clearInterval(graceTimerRef.current); graceTimerRef.current = null }
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current)
   }, [])
 
   // ─── ICE restart ────────────────────────────────────────────────────────────
@@ -104,8 +106,8 @@ export default function VideoChat({ config, onEnd }) {
     setStatus('searching')
     s.emit('video-find-random', payload)
     
-    // Add Timeout
-    const searchTimeout = setTimeout(() => {
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current)
+    searchTimeoutRef.current = setTimeout(() => {
         if (s && s.connected) {
             console.warn('[VideoChat] Matchmaking timeout reached')
             s.emit('video-end')
@@ -113,8 +115,6 @@ export default function VideoChat({ config, onEnd }) {
             toast({ title: 'Nobody is available right now', description: 'Please try finding a new stranger.', variant: 'destructive' })
         }
     }, 15000)
-
-    s.once('video-ready', () => clearTimeout(searchTimeout))
   }, [config, getSocket, isPremium, toast])
 
   // ─── peer connection ────────────────────────────────────────────────────────
@@ -184,6 +184,7 @@ export default function VideoChat({ config, onEnd }) {
   // ─── signaling handlers ─────────────────────────────────────────────────────
   const handleVideoReady = useCallback(async (payload) => {
     console.log('[Signal] video-ready', payload)
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current)
     if (payload?.turnConfig) turnConfigRef.current = payload.turnConfig
     setStatus('connecting')
     const pc = createPC()

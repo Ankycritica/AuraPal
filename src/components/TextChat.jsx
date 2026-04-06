@@ -26,6 +26,7 @@ export default function TextChat({ config, onEnd }) {
     const intentionalEnd = useRef(false)
     // Capture socket.id at pair time so message ownership is stable
     const mySocketId = useRef(null)
+    const searchTimeoutRef = useRef(null)
 
     // ─── socket helper ─────────────────────────────────────────────────────────
     const getSocket = useCallback(() => {
@@ -51,6 +52,7 @@ export default function TextChat({ config, onEnd }) {
         // ── handlers ─────────────────────────────────────────────────────────────
         const onPaired = (data) => {
             console.log('[TextChat] paired:', data)
+            if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current)
             mySocketId.current = s.id          // refresh in case socket reconnected
             setPeerInfo(data.partner)
             setStatus('chatting')
@@ -97,7 +99,7 @@ export default function TextChat({ config, onEnd }) {
         })
         setMessages([sysMsg('🔍 Searching for a stranger…')])
         
-        const searchTimeout = setTimeout(() => {
+        searchTimeoutRef.current = setTimeout(() => {
             if (s && s.connected) {
                 console.warn('[TextChat] Matchmaking timeout reached')
                 s.emit('exit')
@@ -106,11 +108,10 @@ export default function TextChat({ config, onEnd }) {
             }
         }, 15000)
 
-        // Clear timeout if paired
-        s.once('paired', () => clearTimeout(searchTimeout))
+        // The timeout is now reliably cleared inside the onPaired handler.
 
         return () => {
-            clearTimeout(searchTimeout)
+            if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current)
             // Remove event listeners always
             s.off('paired', onPaired)
             s.off('chat_message', onMessage)
@@ -199,7 +200,8 @@ export default function TextChat({ config, onEnd }) {
         setIsTyping(false)
         setMessages([sysMsg('⏭ Skipped — searching for a new stranger…')])
 
-        const searchTimeout = setTimeout(() => {
+        if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current)
+        searchTimeoutRef.current = setTimeout(() => {
             if (s && s.connected) {
                 console.warn('[TextChat] Matchmaking timeout reached (Skip)')
                 s.emit('exit')
@@ -207,8 +209,6 @@ export default function TextChat({ config, onEnd }) {
                 setMessages([sysMsg('⏱️ Nobody is available right now. Please try again!')])
             }
         }, 15000)
-
-        s.once('paired', () => clearTimeout(searchTimeout))
     }, [config, getSocket])
 
     // ─── end (intentional) ────────────────────────────────────────────────────
@@ -236,7 +236,8 @@ export default function TextChat({ config, onEnd }) {
         setIsTyping(false)
         setMessages([sysMsg('🔍 Searching for a stranger…')])
         
-        const searchTimeout = setTimeout(() => {
+        if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current)
+        searchTimeoutRef.current = setTimeout(() => {
             if (s && s.connected) {
                 console.warn('[TextChat] Matchmaking timeout reached (Find New)')
                 s.emit('exit')
@@ -244,8 +245,6 @@ export default function TextChat({ config, onEnd }) {
                 setMessages([sysMsg('⏱️ Nobody is available right now. Please try again!')])
             }
         }, 15000)
-
-        s.once('paired', () => clearTimeout(searchTimeout))
     }, [config, getSocket])
 
     // ─── emoji reaction ───────────────────────────────────────────────────────

@@ -197,6 +197,22 @@ io.on('connection', (socket) => {
   socket.on('find_random', (data) => {
     logger.info({ event: 'find_random_received', socketId: socket.id, sessionId: socketToSession.get(socket.id), data })
     meta.set(socket.id, { ...data, socketId: socket.id })
+
+    // React StrictMode or Remount check: if they are ALREADY paired, just remind them!
+    const partnerId = peers.get(socket.id)
+    if (partnerId) {
+      if (!partnerId.startsWith('bot_')) {
+        const pMeta = meta.get(partnerId)
+        if (pMeta) {
+          logger.info({ event: 'repaired_existing', socketId: socket.id })
+          socket.emit('paired', { roomId: `room_${socket.id}_${partnerId}`, partner: pMeta })
+          return // abort finding a new one
+        }
+      } else {
+         unpair(socket.id, partnerId) // Bot pair, just break and find real human
+      }
+    }
+
     if (!waiting.includes(socket.id)) {
       waiting.push(socket.id)
       logger.info({ event: 'added_to_waiting', socketId: socket.id, waitingLength: waiting.length })
@@ -295,6 +311,19 @@ io.on('connection', (socket) => {
   socket.on('video-find-random', (data) => {
     logger.info({ event: 'video_find_random', socketId: socket.id, data })
     videoMeta.set(socket.id, { ...data, socketId: socket.id, joinTime: Date.now() })
+
+    // React StrictMode or Remount check
+    const partnerId = videoPeers.get(socket.id)
+    if (partnerId) {
+      const pMeta = videoMeta.get(partnerId)
+      if (pMeta) {
+        logger.info({ event: 'repaired_existing_video', socketId: socket.id })
+        // Just re-emit video-ready so they skip queue and setup WebRTC
+        socket.emit('video-ready', { partnerId, caller: false })
+        return
+      }
+    }
+
     if (!videoWaiting.includes(socket.id)) {
       videoWaiting.push(socket.id)
       videoQueueLengthGauge.set(videoWaiting.length)

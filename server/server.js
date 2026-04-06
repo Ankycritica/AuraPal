@@ -218,14 +218,6 @@ io.on('connection', (socket) => {
       logger.info({ event: 'added_to_waiting', socketId: socket.id, waitingLength: waiting.length })
     }
     tryPair()
-
-    // Bot fallback: if they wait 10s and still in queue, pair with AI Bot
-    setTimeout(() => {
-      if (waiting.includes(socket.id)) {
-        logger.info({ event: 'spawning_bot_fallback', socketId: socket.id })
-        handleBotPairing(socket.id)
-      }
-    }, 10000)
   })
 
   socket.on('skip_random', () => {
@@ -249,24 +241,6 @@ io.on('connection', (socket) => {
     const partnerId = peers.get(socket.id)
     if (!partnerId) return
     const msg = { id: payload.id || `m_${Date.now()}`, text: payload.text, image: payload.image, from: socket.id, timestamp: Date.now() }
-
-    if (partnerId.startsWith('bot_')) {
-      socket.emit('delivered', { messageId: msg.id })
-      socket.emit('seen', { messageId: msg.id })
-      setTimeout(() => {
-         socket.emit('typing')
-         setTimeout(() => {
-             socket.emit('stop_typing')
-             socket.emit('chat_message', {
-                id: `bot_reply_${Date.now()}`,
-                text: "That's interesting! I'm just a simple bot filling in until a real person connects, but I'm an excellent listener.",
-                from: partnerId,
-                timestamp: Date.now()
-             })
-         }, 1000 + Math.random() * 2000)
-      }, 500)
-      return
-    }
 
     io.to(partnerId).emit('chat_message', msg)
     socket.emit('delivered', { messageId: msg.id })
@@ -532,32 +506,6 @@ io.on('connection', (socket) => {
     return aAcceptsB || bAcceptsA
   }
 
-  function handleBotPairing(targetSocketId) {
-    const idx = waiting.indexOf(targetSocketId)
-    if (idx < 0) return // already paired or exited
-    waiting.splice(idx, 1)
-
-    const botId = `bot_${Date.now()}`
-    const botMeta = { guestName: 'AuraPal Assistant', gender: 'AI', country: 'Cloud', avatar: '🤖' }
-    
-    peers.set(targetSocketId, botId)
-    peers.set(botId, targetSocketId) 
-    
-    io.to(targetSocketId).emit('paired', { roomId: `room_${targetSocketId}_${botId}`, partner: botMeta })
-    
-    setTimeout(() => {
-      io.to(targetSocketId).emit('typing')
-      setTimeout(() => {
-        io.to(targetSocketId).emit('stop_typing')
-        io.to(targetSocketId).emit('chat_message', {
-          id: `bot_msg_${Date.now()}`,
-          text: "Hi there! I'm the AuraPal AI assistant. There aren't many people online right now, but I'm here to chat! How are you doing?",
-          from: botId,
-          timestamp: Date.now()
-        })
-      }, 1500)
-    }, 2000)
-  }
 
   function tryPair() {
     logger.info({ event: 'try_pair_start', waitingCount: waiting.length })

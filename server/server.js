@@ -248,7 +248,7 @@ io.on('connection', (socket) => {
   socket.on('chat_message', (payload) => {
     const partnerId = peers.get(socket.id)
     if (!partnerId) return
-    const msg = { id: payload.id || `m_${Date.now()}`, text: payload.text, from: socket.id, timestamp: Date.now() }
+    const msg = { id: payload.id || `m_${Date.now()}`, text: payload.text, image: payload.image, from: socket.id, timestamp: Date.now() }
 
     if (partnerId.startsWith('bot_')) {
       socket.emit('delivered', { messageId: msg.id })

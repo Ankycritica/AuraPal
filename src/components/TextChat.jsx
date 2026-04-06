@@ -21,6 +21,7 @@ export default function TextChat({ config, onEnd }) {
 
     const messagesEndRef = useRef(null)
     const inputRef = useRef(null)
+    const fileInputRef = useRef(null)
     const typingTimer = useRef(null)
     // Track whether this is a real unmount or React StrictMode double-invoke
     const intentionalEnd = useRef(false)
@@ -134,7 +135,52 @@ export default function TextChat({ config, onEnd }) {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
     }, [messages, isTyping])
 
-    // ─── send ──────────────────────────────────────────────────────────────────
+    // ─── send image ────────────────────────────────────────────────────────────
+    const handleImageUpload = useCallback((e) => {
+        const file = e.target.files?.[0]
+        if (!file || status !== 'chatting') return
+        
+        const reader = new FileReader()
+        reader.onload = (event) => {
+            const img = new window.Image()
+            img.onload = () => {
+                const canvas = document.createElement('canvas')
+                const MAX_WIDTH = 800
+                const MAX_HEIGHT = 800
+                let width = img.width
+                let height = img.height
+
+                if (width > height) {
+                    if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH }
+                } else {
+                    if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT }
+                }
+                canvas.width = width
+                canvas.height = height
+                const ctx = canvas.getContext('2d')
+                ctx.drawImage(img, 0, 0, width, height)
+                
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.7)
+                const s = getSocket()
+                const msgId = `m_${Date.now()}_img`
+                const newMsg = {
+                    id: msgId,
+                    text: '',
+                    image: dataUrl,
+                    from: mySocketId.current || s.id,
+                    ts: Date.now(),
+                    reactions: {}
+                }
+                setMessages(prev => [...prev, newMsg])
+                s.emit('chat_message', { id: msgId, text: '', image: dataUrl })
+            }
+            img.src = event.target.result
+        }
+        reader.readAsDataURL(file)
+        e.target.value = ''
+    }, [status, getSocket])
+
+    // ─── send text ────────────────────────────────────────────────────────────
     const sendMessage = useCallback(() => {
         const text = input.trim()
         if (!text || status !== 'chatting') return
@@ -351,7 +397,10 @@ export default function TextChat({ config, onEnd }) {
                                                     }`}
                                                 onDoubleClick={() => setShowReactions(showReactions === msg.id ? null : msg.id)}
                                             >
-                                                {msg.text}
+                                                {msg.image && (
+                                                    <img src={msg.image} alt="shared" className="max-w-full max-h-64 rounded-md mb-2 object-contain" />
+                                                )}
+                                                {msg.text && <span>{msg.text}</span>}
                                             </div>
 
                                             {hasReactions && (
@@ -430,6 +479,17 @@ export default function TextChat({ config, onEnd }) {
                     </div>
                 ) : (
                     <div className="flex items-end gap-2">
+                        <input type="file" accept="image/*" ref={fileInputRef} onChange={handleImageUpload} className="hidden" />
+                        <button
+                            onClick={() => fileInputRef.current?.click()}
+                            disabled={status !== 'chatting'}
+                            className="p-3 text-zinc-400 hover:text-white disabled:opacity-30 transition-colors"
+                            title="Share Image"
+                        >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                        </button>
                         <textarea
                             ref={inputRef}
                             value={input}

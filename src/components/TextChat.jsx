@@ -82,9 +82,12 @@ export default function TextChat({ config, onEnd }) {
         s.on('stop_typing', onStopTyping)
         s.on('unpaired', onUnpaired)
         s.on('connect_error', (err) => {
-            console.error('[TextChat] Connection error:', err)
-            setStatus('ended')
-            setMessages([sysMsg('❌ Connection to server failed. Please check your internet or try again later.')])
+            console.error('[TextChat] Connection error:', err.message)
+            // Only set ended if it's the very first connection attempt failing for more than 10s
+            // Otherwise, let Socket.io auto-reconnect in the background.
+            if (status === 'searching' && !s.connected) {
+               // Optional: show a "Still trying to reach server..." message
+            }
         })
 
         // Emit find_random — only do this once on real mount

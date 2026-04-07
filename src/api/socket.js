@@ -1,29 +1,34 @@
 import { io } from 'socket.io-client'
 
 const getBaseUrl = () => {
-  // If we are strictly on vercel, we MUST point to a deployed Node backend.
-  if (typeof window !== 'undefined' && window.location.hostname.includes('vercel.app')) {
-     console.error('CRITICAL: WebSocket connection to Vercel will fail. Pointing to Render fallback.')
-     return 'https://aurapal.onrender.com'
+  if (typeof window === 'undefined') return ''
+  
+  const host = window.location.hostname
+  const isVercel = host.includes('vercel.app')
+  const isCustomDomain = host === 'www.aurapal.org' || host === 'aurapal.org'
+  
+  if (isVercel || isCustomDomain) {
+      return 'https://aurapal.onrender.com'
   }
 
-  // If deployed to aurapal.org, we either use the same domain (if backend is hosted together) or Render backend
-  if (typeof window !== 'undefined' && window.location.hostname === 'www.aurapal.org') {
-     return 'https://aurapal.onrender.com'
+  const isLocal = host === 'localhost' || 
+                  host === '127.0.0.1' || 
+                  host === '0.0.0.0' ||
+                  host.startsWith('192.168.') || 
+                  host.startsWith('10.') ||
+                  host.startsWith('172.')
+
+  // Use explicit env var if provided
+  if (import.meta.env.VITE_SOCKET_URL) {
+      return import.meta.env.VITE_SOCKET_URL
   }
 
-  const isLocalNetwork = typeof window !== 'undefined' && 
-    (window.location.hostname.includes('192.168.') || 
-     window.location.hostname.includes('10.') ||
-     window.location.hostname === 'localhost')
-
-  // Use explicit env var ONLY if it isn't hardcoded to localhost when we are on a network IP
-  const envUrl = import.meta.env.VITE_SOCKET_URL
-  if (envUrl && !(envUrl.includes('localhost') && isLocalNetwork && window.location.hostname !== 'localhost')) {
-     return envUrl
+  if (isLocal) {
+      // Local dev always assumes backend is on 3000
+      return `http://${host}:3000`
   }
-
-  if (isLocalNetwork) return `http://${window.location.hostname}:3000`
+  
+  // Fallback to origin
   return '' 
 }
 
@@ -64,7 +69,7 @@ export function connect(identity) {
     reconnectionAttempts: 10,
     reconnectionDelay: 2000,
     reconnectionDelayMax: 10000,
-    timeout: 5000,
+    timeout: 20000,
   })
 
   _socket.on('connect', () => {

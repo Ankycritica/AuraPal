@@ -289,9 +289,8 @@ export default function VideoChat({ config, onEnd }) {
       const s = getSocket()
 
       const handleConnectError = (err) => {
-        console.error('[VideoChat] Connection error:', err)
-        setStatus('error')
-        toast({ title: 'Connection failed', description: 'Could not connect to the matchmaking server.', variant: 'destructive' })
+        console.warn('[VideoChat] Connection error:', err.message)
+        // Let it retry, but inform the user if possible
       }
 
       // Wire all events

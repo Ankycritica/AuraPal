@@ -1,0 +1,110 @@
+﻿
+> aurapal@0.0.0 build
+> vite build
+
+[36mvite v7.2.4 [32mbuilding client environment for production...[36m[39m
+transforming...
+[32mΓ£ô[39m 1874 modules transformed.
+node.exe : [31mΓ£ù[39m 
+Build failed in 7.58s
+At line:1 char:1
++ & "C:\Program 
+Files\nodejs/node.exe" 
+"C:\Program 
+Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo        
+      : NotSpecified: (  
+  [31mΓ£ù[39m Build fa   
+ iled in 7.58s:String)    
+ [], RemoteException
+    + FullyQualifiedError 
+   Id : NativeCommandErr  
+  or
+ 
+[31merror during build:
+[31msrc/pages/saas/Dashbo
+ard.jsx (4:9): "useToast" 
+is not exported by "src/co
+mponents/ui/use-toast.jsx"
+, imported by "src/pages/s
+aas/Dashboard.jsx".[31m
+file: [36mC:/Users/donga/
+Documents/AuraPal/src/page
+s/saas/Dashboard.jsx:4:9[
+31m
+[33m
+2: import { useNavigate } 
+from 'react-router-dom';
+3: import { Sparkles, 
+ArrowRight, Briefcase, 
+FileText, Lightbulb, 
+Rocket, Send, Copy, 
+CheckCheck } from 
+'lucide-react';
+4: import { useToast } 
+from '../../components/ui/
+use-toast';
+            ^
+5: 
+6: export default 
+function Dashboard() {
+[31m
+    at getRollupError (fil
+e:///C:/Users/donga/Docume
+nts/AuraPal/node_modules/r
+ollup/dist/es/shared/parse
+Ast.js:401:41)
+    at error (file:///C:/U
+sers/donga/Documents/AuraP
+al/node_modules/rollup/dis
+t/es/shared/parseAst.js:39
+7:42)
+    at Module.error (file:
+///C:/Users/donga/Document
+s/AuraPal/node_modules/rol
+lup/dist/es/shared/node-en
+try.js:16956:16)
+    at 
+Module.traceVariable (file
+:///C:/Users/donga/Documen
+ts/AuraPal/node_modules/ro
+llup/dist/es/shared/node-e
+ntry.js:17412:29)
+    at 
+ModuleScope.findVariable (
+file:///C:/Users/donga/Doc
+uments/AuraPal/node_module
+s/rollup/dist/es/shared/no
+de-entry.js:15076:39)
+    at FunctionScope.findV
+ariable (file:///C:/Users/
+donga/Documents/AuraPal/no
+de_modules/rollup/dist/es/
+shared/node-entry.js:5649:
+38)
+    at FunctionBodyScope.f
+indVariable (file:///C:/Us
+ers/donga/Documents/AuraPa
+l/node_modules/rollup/dist
+/es/shared/node-entry.js:5
+649:38)
+    at Identifier.bind (fi
+le:///C:/Users/donga/Docum
+ents/AuraPal/node_modules/
+rollup/dist/es/shared/node
+-entry.js:5423:40)
+    at 
+CallExpression.bind (file:
+///C:/Users/donga/Document
+s/AuraPal/node_modules/rol
+lup/dist/es/shared/node-en
+try.js:2813:23)
+    at 
+CallExpression.bind (file:
+///C:/Users/donga/Document
+s/AuraPal/node_modules/rol
+lup/dist/es/shared/node-en
+try.js:12123:15)[39m

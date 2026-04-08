@@ -88,3 +88,6 @@ function ToastItem({ toast, onClose }) {
 }
 
 export default ToastProvider
+
+// Re-export hook so pages can do: import { useToast } from '.../use-toast'
+export { useToast } from './use-toast-hook'

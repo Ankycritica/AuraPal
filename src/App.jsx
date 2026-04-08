@@ -1,117 +1,45 @@
-import React, { useEffect } from 'react'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { Layout } from './components/Layout'
-import { ProtectedRoute } from './components/ProtectedRoute'
-import { ToastProvider } from './components/ui/use-toast'
-import { Home } from './pages/Home'
-import { About } from './pages/About'
-import { Features } from './pages/Features'
-import { Pricing } from './pages/Pricing'
-import { SignIn } from './pages/SignIn'
-import { SignUp } from './pages/SignUp'
-import { Dashboard } from './pages/Dashboard'
-import { Profile } from './pages/Profile'
-import { Messages } from './pages/Messages'
-import { Safety } from './pages/Safety'
-import Chat from './pages/Chat'
-import { NotFound } from './pages/NotFound'
-import ChatTest from './pages/ChatTest'
-import { Settings } from './pages/Settings'
-import { PremiumCheckout } from './pages/PremiumCheckout'
-import FriendRequestListener from './components/FriendRequestListener'
-import { TermsOfService } from './pages/TermsOfService'
-import { PrivacyPolicy } from './pages/PrivacyPolicy'
-import { CommunityGuidelines } from './pages/CommunityGuidelines'
-import SEOLanding from './pages/SEOLanding'
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { SaaSLayout } from './components/SaaSLayout';
+import { ToastProvider } from './components/ui/use-toast';
+
+// New SaaS Pages
+import Dashboard from './pages/saas/Dashboard';
+import { SEOGenerator } from './pages/saas/SEOGenerator';
+import { ResumeFixer } from './pages/saas/ResumeFixer';
+import { LinkedInRoast } from './pages/saas/LinkedInRoast';
+import { BusinessPlan } from './pages/saas/BusinessPlan';
+import { SideHustles } from './pages/saas/SideHustles';
+import { BulkArticle } from './pages/saas/BulkArticle';
+import PricingSaaS from './pages/saas/PricingSaaS';
 
 function App() {
-  useEffect(() => {
-    document.body.style.background = '#09090b'
-    document.body.style.color = '#fafafa'
-  }, [])
-
   return (
     <ToastProvider>
       <BrowserRouter>
-        <FriendRequestListener />
-        <Layout>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/omegle-alternative" element={<SEOLanding />} />
-            <Route path="/random-chat" element={<SEOLanding />} />
-            <Route path="/chat-with-strangers" element={<SEOLanding />} />
-            <Route path="/anonymous-chat" element={<SEOLanding />} />
-            <Route path="/chat-platform" element={<SEOLanding />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/features" element={<Features />} />
-            <Route path="/pricing" element={<Pricing />} />
-            <Route path="/safety" element={<Safety />} />
-            <Route path="/terms" element={<TermsOfService />} />
-            <Route path="/privacy" element={<PrivacyPolicy />} />
-            <Route path="/guidelines" element={<CommunityGuidelines />} />
-
-            {/* Chat system entry - NO PROTECTION, user can enter anytime */}
-            <Route path="/chat" element={<Chat />} />
-            <Route path="/chat-test" element={<ChatTest />} />
-
-            {/* Auth */}
-            <Route path="/signin" element={<SignIn />} />
-            <Route path="/signup" element={<SignUp />} />
-
-            <Route path="/checkout" element={<PremiumCheckout />} />
-
-            {/* Protected pages */}
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/profile"
-              element={
-                <ProtectedRoute>
-                  <Profile />
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/messages"
-              element={
-                <ProtectedRoute>
-                  <Messages />
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/messages/:conversationId"
-              element={
-                <ProtectedRoute>
-                  <Messages />
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/settings"
-              element={
-                <ProtectedRoute>
-                  <Settings />
-                </ProtectedRoute>
-              }
-            />
-
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Layout>
+        <Routes>
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route element={<SaaSLayout />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/seo-article-generator" element={<SEOGenerator />} />
+            <Route path="/resume-fixer" element={<ResumeFixer />} />
+            <Route path="/linkedin-roast" element={<LinkedInRoast />} />
+            <Route path="/business-plan-generator" element={<BusinessPlan />} />
+            <Route path="/side-hustle-ideas" element={<SideHustles />} />
+            <Route path="/bulk-article-generator" element={<BulkArticle />} />
+            <Route path="/pricing" element={<PricingSaaS />} />
+            {/* Catch-all for settings/profile placeholder */}
+            <Route path="/settings" element={
+              <div className="text-center mt-20">
+                <h2 className="text-2xl font-bold mb-2">Settings</h2>
+                <p className="text-gray-400">Manage your profile and API keys here.</p>
+              </div>
+            } />
+          </Route>
+        </Routes>
       </BrowserRouter>
     </ToastProvider>
-  )
+  );
 }
 
-export default App
+export default App;

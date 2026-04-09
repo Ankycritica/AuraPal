@@ -4,15 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"vite\" \"node server/server.js\"",
-    "start": "node server/server.js",
-    "build": "vite build",
-    "preview": "vite preview",
-    "lint": "eslint .",
-    "format": "prettier --write \"src/**/*.{js,jsx,json,css}\"",
-    "test": "jest",
-    "test:integration": "node server/tests/socket-pair.test.js",
-    "test:reconnect": "GRACE_WINDOW_MS=6000 node server/tests/reconnect.test.js"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.2",

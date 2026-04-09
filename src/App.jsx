@@ -1,16 +1,16 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { SaaSLayout } from './components/SaaSLayout';
 import { ToastProvider } from './components/ui/use-toast';
+import AppShell from './components/AppShell';
 
-// New SaaS Pages
+// Pages
 import Dashboard from './pages/saas/Dashboard';
-import { SEOGenerator } from './pages/saas/SEOGenerator';
-import { ResumeFixer } from './pages/saas/ResumeFixer';
-import { LinkedInRoast } from './pages/saas/LinkedInRoast';
-import { BusinessPlan } from './pages/saas/BusinessPlan';
-import { SideHustles } from './pages/saas/SideHustles';
-import { BulkArticle } from './pages/saas/BulkArticle';
+import ResumeFixer from './pages/saas/ResumeFixer';
+import CoverLetter from './pages/saas/CoverLetter';
+import InterviewPrep from './pages/saas/InterviewPrep';
+import LinkedInOptimizer from './pages/saas/LinkedInOptimizer';
+import JobFitAnalyzer from './pages/saas/JobFitAnalyzer';
+import CareerRoadmap from './pages/saas/CareerRoadmap';
 import PricingSaaS from './pages/saas/PricingSaaS';
 
 function App() {
@@ -19,20 +19,25 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route element={<SaaSLayout />}>
+          <Route element={<AppShell />}>
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/seo-article-generator" element={<SEOGenerator />} />
-            <Route path="/resume-fixer" element={<ResumeFixer />} />
-            <Route path="/linkedin-roast" element={<LinkedInRoast />} />
-            <Route path="/business-plan-generator" element={<BusinessPlan />} />
-            <Route path="/side-hustle-ideas" element={<SideHustles />} />
-            <Route path="/bulk-article-generator" element={<BulkArticle />} />
+            <Route path="/resume-builder" element={<ResumeFixer />} />
+            <Route path="/cover-letter" element={<CoverLetter />} />
+            <Route path="/interview-prep" element={<InterviewPrep />} />
+            <Route path="/linkedin-optimizer" element={<LinkedInOptimizer />} />
+            <Route path="/job-fit" element={<JobFitAnalyzer />} />
+            <Route path="/career-roadmap" element={<CareerRoadmap />} />
             <Route path="/pricing" element={<PricingSaaS />} />
-            {/* Catch-all for settings/profile placeholder */}
             <Route path="/settings" element={
-              <div className="text-center mt-20">
-                <h2 className="text-2xl font-bold mb-2">Settings</h2>
-                <p className="text-gray-400">Manage your profile and API keys here.</p>
+              <div style={{ textAlign: 'center', paddingTop: 80 }}>
+                <h2 style={{ fontSize: 24, fontWeight: 800, fontFamily: 'Syne', marginBottom: 8 }}>Settings</h2>
+                <p style={{ color: 'var(--color-text-secondary)' }}>Profile, billing, and preferences coming soon.</p>
+              </div>
+            } />
+            <Route path="*" element={
+              <div style={{ textAlign: 'center', paddingTop: 80 }}>
+                <h2 style={{ fontSize: 48, fontWeight: 800, fontFamily: 'Syne', color: 'var(--color-primary)', marginBottom: 8 }}>404</h2>
+                <p style={{ fontSize: 18, color: 'var(--color-text-secondary)' }}>This page doesn't exist yet.</p>
               </div>
             } />
           </Route>

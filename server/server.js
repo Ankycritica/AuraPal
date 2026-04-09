@@ -4,62 +4,60 @@ import { createServer } from 'http';
 import rateLimit from 'express-rate-limit';
 import pino from 'pino';
 import sessionMiddleware from './auth/session.js';
-
-// Import our new routes
 import aiRoutes from './api/ai.js';
 import stripeRoutes from './api/stripe.js';
 import googleAuth from './auth/google.js';
 
-const logger = pino({
-  level: process.env.LOG_LEVEL || 'info', // Using pino for fast logging
-});
+const logger = pino({ level: process.env.LOG_LEVEL || 'info' });
 
 const app = express();
 
-// Enable CORS
-app.use(cors({
-  origin: true, // For dev
-  credentials: true
-}));
+app.use(cors({ origin: true, credentials: true }));
 
-// Basic Rate Limiting
+// Rate limiting
 const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, 
-  max: 1000,
-  message: 'Too many requests, please try again later.'
+  windowMs: 15 * 60 * 1000,
+  max: 200,
+  message: { error: 'Too many requests. Please try again later.' },
 });
-app.use(apiLimiter);
 
-// Stripe webhook needs raw body
+// AI-specific rate limiter (tighter)
+const aiLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 10,
+  message: { error: 'AI rate limit reached. Please wait a minute.' },
+});
+
+// Stripe webhook needs raw body — mount BEFORE express.json()
 app.use('/api/stripe/webhook', express.raw({ type: 'application/json' }));
 
-// Standard middleware
 app.use(express.json());
+app.use(apiLimiter);
 app.use(sessionMiddleware);
 
-// Routes
+// API Routes
 app.use('/api/auth/google', googleAuth);
 app.use('/api/stripe', stripeRoutes);
-app.use('/api/ai', aiRoutes);
+app.use('/api/ai', aiLimiter, aiRoutes);
 
-// Auth Me route
+// Auth status
 app.get('/api/auth/me', (req, res) => {
-  // Mock login for now if not using session locally
-  res.json({ user: req.user || { id: 1, name: 'Demo User', credits: 5 } });
+  res.json({ user: req.user || { id: 'demo', name: 'Demo User', credits: 5, plan: 'free' } });
 });
 
-// Base 404 handler
+// 404
 app.use((req, res) => {
-  res.status(404).send("Not Found");
+  res.status(404).json({ error: 'Not found' });
 });
 
+// Start
 const httpServer = createServer(app);
 const PORT = process.env.PORT || 3000;
 
 if (process.env.NODE_ENV !== 'test') {
   httpServer.listen(PORT, () => {
     logger.info({ event: 'server_start', port: PORT });
-    console.log(`Server running on port ${PORT}`);
+    console.log(`AuraPal API running on port ${PORT}`);
   });
 }
 

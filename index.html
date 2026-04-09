@@ -2,84 +2,47 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" type="image/png" href="/src/assets/AURAPAL.png" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#0b1220" />
+    <meta name="theme-color" content="#0A0F1E" />
 
     <!-- Primary metadata -->
-    <title>AuraPal — Chat With Strangers & Make Real Connections</title>
-    <meta name="title" content="AuraPal — Chat With Strangers & Make Real Connections" />
-    <meta
-      name="description"
-      content="AuraPal is your AI-powered career and income engine. Fix your resume, generate SEO articles, roast your LinkedIn, build business plans, and discover profitable side hustles."
-    />
-    <meta
-      name="keywords"
-      content="AI resume fixer, SEO article generator, LinkedIn optimizer, business plan generator, side hustle ideas, AI writing tool, career growth AI"
-    />
+    <title>AuraPal — AI Career &amp; Growth Engine</title>
+    <meta name="title" content="AuraPal — AI Career & Growth Engine" />
+    <meta name="description" content="AuraPal is your AI-powered career engine. Build stunning resumes, generate cover letters, prep for interviews, optimize your LinkedIn, and plan your career roadmap — all powered by AI." />
+    <meta name="keywords" content="AI resume builder, cover letter generator, interview prep AI, LinkedIn optimizer, career roadmap, ATS score checker, AI career tools, job fit analyzer" />
     <meta name="author" content="AuraPal" />
     <meta name="robots" content="index, follow" />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://aurapal.io/" />
-    <meta
-      property="og:title"
-      content="AuraPal — AI Career &amp; Growth Engine"
-    />
-    <meta
-      property="og:description"
-      content="Fix resumes, generate SEO content, build business plans, and find profitable side hustles — powered by AI."
-    />
-    <meta property="og:image" content="/src/assets/og-image.png" />
+    <meta property="og:url" content="https://aurapal.org/" />
+    <meta property="og:title" content="AuraPal — AI Career & Growth Engine" />
+    <meta property="og:description" content="Build resumes, generate cover letters, prep for interviews, and plan your career — all powered by AI." />
+    <meta property="og:image" content="https://aurapal.org/og-image.png" />
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@aurapal" />
-    <meta
-      name="twitter:title"
-      content="AuraPal — AI Career &amp; Growth Engine"
-    />
-    <meta
-      name="twitter:description"
-      content="Your AI engine for career advancement and income generation. Resume, SEO, LinkedIn, and more."
-    />
-    <meta name="twitter:image" content="/src/assets/og-image.png" />
+    <meta name="twitter:title" content="AuraPal — AI Career & Growth Engine" />
+    <meta name="twitter:description" content="Your AI-powered career engine. Resume builder, interview prep, LinkedIn optimizer, and more." />
+    <meta name="twitter:image" content="https://aurapal.org/og-image.png" />
 
-    <!-- Performance hints -->
+    <!-- Fonts: Syne for headings, DM Sans for body -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <!-- Example font (optional) -->
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet" />
 
-    <!-- App manifest (optional) -->
-    <link rel="manifest" href="/manifest.webmanifest" />
-
-    <!-- Fallback CSS for non-JS users -->
     <noscript>
       <style>
-        body {
-          background: #0b1220;
-          color: #e6eef8;
-          font-family: system-ui, -apple-system, "Segoe UI", Roboto,
-            "Helvetica Neue", Arial;
-        }
+        body { background: #0A0F1E; color: #e6eef8; font-family: 'DM Sans', system-ui, sans-serif; }
       </style>
     </noscript>
   </head>
 
   <body>
-    <div id="root" aria-live="polite"></div>
-
-    <!-- Prevent theme flash on page load -->
-    <script>
-      const theme = localStorage.getItem('ap-theme') || 'dark';
-      document.documentElement.setAttribute('data-theme', theme);
-    </script>
-
-    <!-- Vite entry -->
+    <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

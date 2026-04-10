@@ -6,11 +6,37 @@ import { Toaster } from "react-hot-toast"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "AuraPal — AI Career & Growth Engine",
+  title: {
+    default: "AuraPal — Premium AI Resume Builder & Career Growth Tools",
+    template: "%s | AuraPal"
+  },
   description:
-    "AI-powered career tools: resume builder, cover letter " +
-    "generator, interview prep, LinkedIn optimizer, and " +
-    "more.",
+    "AuraPal provides a suite of premium AI-powered career tools: free resume builder, cover letter generator, LinkedIn optimizer, ATS resume fixer, interview prep, and business plan generation.",
+  keywords: [
+    "AI Resume Builder Free",
+    "ATS Resume Fixer",
+    "AI Career Tools",
+    "LinkedIn Profile Optimizer",
+    "Cover Letter Generator AI",
+    "Roast My Resume",
+    "Side Hustle Generator",
+    "Startup Business Plan Builder"
+  ],
+  authors: [{ name: "AuraPal" }],
+  creator: "AuraPal",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://www.aurapal.org",
+    title: "AuraPal — Premium AI Resume Builder & Career Growth Tools",
+    description: "Fix your resume in 30 seconds with AuraPal's AI career platform.",
+    siteName: "AuraPal",
+  },
+  icons: {
+    icon: "/logo.png",
+    shortcut: "/logo.png",
+    apple: "/logo.png",
+  },
 }
 
 export default function RootLayout({

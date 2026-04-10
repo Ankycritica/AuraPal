@@ -26,7 +26,7 @@ export default async function LandingPage() {
           </div>
           
           <h1 className="text-5xl lg:text-7xl font-black tracking-tighter leading-[1.1] text-white">
-            Level up your career with <span className="bg-gradient-to-r from-teal-400 to-cyan-400 bg-clip-text text-transparent">Power Intelligence.</span>
+            <span className="bg-gradient-to-r from-teal-400 to-cyan-400 bg-clip-text text-transparent">Fix your resume</span> in 30 seconds.
           </h1>
           
           <p className="text-lg lg:text-xl text-gray-400 font-medium leading-relaxed max-w-2xl mx-auto">

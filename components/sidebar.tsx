@@ -16,7 +16,10 @@ import {
   Sparkles,
   ChevronLeft,
   ChevronRight,
-  Menu
+  Menu,
+  Flame,
+  Lightbulb,
+  Briefcase
 } from "lucide-react"
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
@@ -24,16 +27,20 @@ import { cn } from "@/lib/utils"
 import { signOut } from "next-auth/react"
 import toast from "react-hot-toast"
 
-const navLinks = [
+const coreLinks = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Resume Builder", href: "/resume-builder", icon: FileText },
   { name: "Resume Upload", href: "/resume-upload", icon: Upload },
   { name: "Cover Letter", href: "/cover-letter", icon: Mail },
   { name: "Interview Prep", href: "/interview-prep", icon: MessageSquare },
   { name: "LinkedIn Optimizer", href: "/linkedin-optimizer", icon: Linkedin },
-  { name: "Job Fit Analyzer", href: "/job-fit", icon: Target },
-  { name: "Career Roadmap", href: "/career-roadmap", icon: Map },
-  { name: "Settings", href: "/settings", icon: Settings },
+]
+
+const premiumLinks = [
+  { name: "Roast My Resume", href: "/roast-resume", icon: Flame, isPremium: true },
+  { name: "LinkedIn Roast", href: "/linkedin-roast", icon: Flame, isPremium: true },
+  { name: "Side Hustle Ideas", href: "/side-hustle", icon: Lightbulb, isPremium: true },
+  { name: "Business Plan", href: "/business-plan", icon: Briefcase, isPremium: true },
 ]
 
 export function Sidebar({ user }: { user: any }) {
@@ -90,32 +97,78 @@ export function Sidebar({ user }: { user: any }) {
         </div>
 
         {/* Navigation Section */}
-        <nav className="flex-1 px-3 space-y-1 overflow-y-auto custom-scrollbar">
-          {navLinks.map((link) => {
-            const isActive = pathname === link.href
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={cn(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group relative",
-                  isActive 
-                    ? "bg-teal-500 text-white shadow-lg shadow-teal-500/20" 
-                    : "text-gray-400 hover:text-white hover:bg-gray-800/50"
-                )}
-              >
-                <link.icon size={22} className={cn(isActive ? "text-white" : "group-hover:text-teal-400")} />
-                {!isCollapsed && (
-                  <span className="font-medium text-sm whitespace-nowrap">{link.name}</span>
-                )}
-                {isCollapsed && (
-                  <div className="absolute left-full ml-2 px-3 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-[60]">
-                    {link.name}
+        <nav className="flex-1 px-3 space-y-6 overflow-y-auto custom-scrollbar py-4">
+          
+          <div className="space-y-1">
+            {!isCollapsed && <p className="px-3 text-[10px] font-black tracking-widest text-gray-500 uppercase mb-2">Core Tools</p>}
+            {coreLinks.map((link) => {
+              const isActive = pathname === link.href
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={cn(
+                    "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group relative",
+                    isActive 
+                      ? "bg-teal-500 text-white shadow-lg shadow-teal-500/20" 
+                      : "text-gray-400 hover:text-white hover:bg-gray-800/50"
+                  )}
+                >
+                  <link.icon size={20} className={cn(isActive ? "text-white" : "group-hover:text-teal-400")} />
+                  {!isCollapsed && (
+                    <span className="font-semibold text-sm whitespace-nowrap">{link.name}</span>
+                  )}
+                  {isCollapsed && (
+                    <div className="absolute left-full ml-2 px-3 py-1 bg-gray-900 border border-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-[60]">
+                      {link.name}
+                    </div>
+                  )}
+                </Link>
+              )
+            })}
+          </div>
+
+          <div className="space-y-1">
+            {!isCollapsed && <p className="px-3 text-[10px] font-black tracking-widest text-teal-500 uppercase mb-2 flex items-center gap-1.5"><Sparkles size={12}/> Growth & Viral (Free)</p>}
+            {premiumLinks.map((link) => {
+              const isActive = pathname === link.href
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={cn(
+                    "flex items-center justify-between px-3 py-2.5 rounded-xl transition-all duration-200 group relative",
+                    isActive 
+                      ? "bg-gradient-to-r from-teal-500/20 to-transparent border border-teal-500/30 text-white" 
+                      : "text-gray-400 hover:text-white hover:bg-gray-800/50"
+                  )}
+                >
+                  <div className="flex items-center gap-3">
+                    <link.icon size={20} className={cn(isActive ? "text-teal-400" : "group-hover:text-teal-400")} />
+                    {!isCollapsed && (
+                      <span className="font-semibold text-sm whitespace-nowrap">{link.name}</span>
+                    )}
                   </div>
-                )}
-              </Link>
-            )
-          })}
+                  {!isCollapsed && (
+                    <span className="text-[9px] font-black uppercase tracking-wider bg-teal-500/20 text-teal-400 px-1.5 py-0.5 rounded">NEW</span>
+                  )}
+                  {isCollapsed && (
+                    <div className="absolute left-full ml-2 px-3 py-1 bg-gray-900 border border-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-[60] flex items-center gap-2">
+                      {link.name}
+                      <span className="text-[9px] font-black text-teal-400">NEW</span>
+                    </div>
+                  )}
+                </Link>
+              )
+            })}
+          </div>
+
+          <div className="pt-4 space-y-1">
+            <Link href="/settings" className={cn("flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group relative text-gray-400 hover:text-white hover:bg-gray-800/50", pathname === "/settings" && "bg-gray-800 text-white")}>
+              <Settings size={20} className="group-hover:text-white" />
+              {!isCollapsed && <span className="font-semibold text-sm whitespace-nowrap">Settings</span>}
+            </Link>
+          </div>
         </nav>
 
         {/* Bottom Section */}

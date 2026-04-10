@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Sparkles, FileText, Download, Copy, Loader2, Save } from "lucide-react"
+import { Sparkles, FileText, Download, Copy, Loader2, Save, Lock } from "lucide-react"
 import { motion } from "framer-motion"
 import toast from "react-hot-toast"
 import jsPDF from "jspdf"
@@ -107,18 +107,20 @@ export default function ResumeBuilderPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <button 
-                onClick={downloadPDF}
-                className="py-5 bg-white/5 hover:bg-white/10 text-white font-black rounded-3xl border border-white/10 transition-all flex items-center justify-center gap-3"
+                onClick={() => toast.error("Export to PDF is a Premium feature. Upgrade to Pro.")}
+                className="py-5 bg-white/5 hover:bg-white/10 text-gray-500 font-black rounded-3xl border border-white/10 transition-all flex items-center justify-center gap-3 relative overflow-hidden group cursor-pointer"
               >
-                <Download size={24} />
-                Download as PDF
+                <div className="absolute top-2 right-3 text-[10px] uppercase font-black tracking-widest text-[#f59e0b] bg-[#f59e0b]/10 px-2 py-0.5 rounded flex items-center gap-1"><Lock size={10} /> PRO</div>
+                <Download size={24} className="text-gray-500 group-hover:text-white transition-colors" />
+                <span className="group-hover:text-white transition-colors">Download as PDF</span>
               </button>
               <button 
-                 onClick={() => { toast.success("Feature coming soon!"); }}
-                className="py-5 bg-teal-500/10 hover:bg-teal-500/20 text-teal-400 font-black rounded-3xl border border-teal-500/20 transition-all flex items-center justify-center gap-3"
+                 onClick={() => toast.error("Save to Profile is a Premium feature. Upgrade to Pro.")}
+                className="py-5 bg-white/5 hover:bg-white/10 text-gray-500 font-black rounded-3xl border border-white/10 transition-all flex items-center justify-center gap-3 relative overflow-hidden group cursor-pointer"
               >
-                <Save size={24} />
-                Save to Profile
+                <div className="absolute top-2 right-3 text-[10px] uppercase font-black tracking-widest text-[#f59e0b] bg-[#f59e0b]/10 px-2 py-0.5 rounded flex items-center gap-1"><Lock size={10} /> PRO</div>
+                <Save size={24} className="text-gray-500 group-hover:text-white transition-colors" />
+                <span className="group-hover:text-white transition-colors">Save to Profile</span>
               </button>
             </div>
             

@@ -12,8 +12,21 @@ export default async function LandingPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0f1e] overflow-hidden">
+      {/* Top Navbar */}
+      <header className="absolute top-0 w-full z-50 p-6 flex justify-between items-center max-w-7xl mx-auto left-1/2 -translate-x-1/2">
+        <div className="flex items-center gap-3">
+          <img src="/logo.png" alt="AuraPal Logo" className="w-10 h-10 object-contain" />
+          <span className="text-2xl font-black bg-gradient-to-r from-teal-400 to-cyan-400 bg-clip-text text-transparent">
+            AuraPal
+          </span>
+        </div>
+        <Link href="/login" className="px-6 py-2 bg-white/10 hover:bg-white/20 border border-white/5 text-white font-bold rounded-xl transition-all">
+          Sign In
+        </Link>
+      </header>
+
       {/* Hero Section */}
-      <section className="relative pt-20 pb-16 lg:pt-32 lg:pb-32 px-4 max-w-7xl mx-auto">
+      <section className="relative pt-32 pb-16 lg:pt-40 lg:pb-32 px-4 max-w-7xl mx-auto">
         {/* Background Gradients */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full -z-10">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-teal-500/10 blur-[120px] rounded-full" />

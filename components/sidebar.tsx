@@ -84,8 +84,11 @@ export function Sidebar({ user }: { user: any }) {
         {/* Logo Section */}
         <div className="p-6 flex items-center justify-between">
           {!isCollapsed && (
-            <Link href="/dashboard" className="text-2xl font-black bg-gradient-to-r from-teal-400 to-cyan-400 bg-clip-text text-transparent">
-              AuraPal
+            <Link href="/dashboard" className="flex items-center gap-3">
+              <img src="/logo.png" alt="AuraPal Logo" className="w-8 h-8 object-contain" />
+              <span className="text-2xl font-black bg-gradient-to-r from-teal-400 to-cyan-400 bg-clip-text text-transparent">
+                AuraPal
+              </span>
             </Link>
           )}
           <button 

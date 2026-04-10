@@ -2,36 +2,46 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --color-base: #0A0F1E;
-  --color-primary: #00D4FF;
-  --color-secondary: #F5C842;
+@layer base {
+  body {
+    @apply bg-[#0a0f1e] text-white antialiased;
+  }
 }
 
-body {
-  background-color: var(--color-base);
-  color: white;
-  font-family: var(--font-dm-sans), sans-serif;
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-syne), sans-serif;
+::-webkit-scrollbar-track {
+  @apply bg-[#0a0f1e];
 }
 
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-800 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-700;
+}
+
+/* Tool Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* Glass Effect */
 .glass {
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  @apply bg-white/5 backdrop-blur-lg border border-white/10;
 }
 
-.animate-gradient {
-  background: linear-gradient(-45deg, #0A0F1E, #111827, #1e1b4b, #0A0F1E);
-  background-size: 400% 400%;
-  animation: gradient 15s ease infinite;
-}
-
-@keyframes gradient {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+/* Premium Gradient Context */
+.bg-premium {
+  background: radial-gradient(circle at 50% -20%, #1e1b4b, #0c0a09);
 }

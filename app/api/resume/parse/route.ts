@@ -3,57 +3,68 @@ import { auth } from "@/auth"
 
 export async function POST(req: NextRequest) {
   const session = await auth()
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  if (!session)
+    return NextResponse.json(
+      { error: "Unauthorized" },
+      { status: 401 }
+    )
 
   try {
     const formData = await req.formData()
     const file = formData.get("file") as File
-    if (!file) return NextResponse.json({ error: "No file uploaded" }, { status: 400 })
-    
-    const buffer = Buffer.from(await file.arrayBuffer())
-    
-    // Affinda API call
-    const affindaFormData = new FormData();
-    affindaFormData.append("file", new Blob([buffer]), file.name);
+    if (!file)
+      return NextResponse.json(
+        { error: "No file uploaded" },
+        { status: 400 }
+      )
 
-    const response = await fetch("https://api.affinda.com/v2/resumes", {
-      method: "POST",
-      headers: { 
-        Authorization: `Bearer ${process.env.AFFINDA_API_KEY}` 
-      },
-      body: affindaFormData,
-    })
+    const bytes = await file.arrayBuffer()
+    const buffer = Buffer.from(bytes)
+    let text = ""
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Affinda error:", errorText);
-      return NextResponse.json({ error: "Failed to parse resume with Affinda" }, { status: response.status });
+    if (file.name.endsWith(".pdf")) {
+      const pdfParse = (await import("pdf-parse")).default
+      const data = await pdfParse(buffer)
+      text = data.text
+    } else if (
+      file.name.endsWith(".docx") ||
+      file.name.endsWith(".doc")
+    ) {
+      const mammoth = await import("mammoth")
+      const result = await mammoth.extractRawText({ buffer })
+      text = result.value
+    } else if (file.name.endsWith(".txt")) {
+      text = buffer.toString("utf-8")
+    } else {
+      return NextResponse.json(
+        {
+          error:
+            "Unsupported file type. Use PDF, DOCX, " + "or TXT.",
+        },
+        { status: 400 }
+      )
     }
 
-    const data = await response.json()
+    if (!text.trim()) {
+      return NextResponse.json(
+        {
+          error:
+            "Could not extract text from file. Try " +
+            "a different format.",
+        },
+        { status: 400 }
+      )
+    }
 
-    // Map Affinda response to AuraPal resume schema
     return NextResponse.json({
-      name: data.data?.name?.raw,
-      email: data.data?.emails?.[0],
-      phone: data.data?.phoneNumbers?.[0],
-      summary: data.data?.summary,
-      experience: data.data?.workExperience?.map((w: any) => ({
-        company: w.organization, 
-        role: w.jobTitle,
-        start: w.dates?.startDate, 
-        end: w.dates?.endDate,
-        bullets: w.jobDescription?.split("\n").filter(Boolean)
-      })) || [],
-      education: data.data?.education?.map((e: any) => ({
-        school: e.organization, 
-        degree: e.accreditation?.education,
-        year: e.dates?.completionDate
-      })) || [],
-      skills: data.data?.skills?.map((s: any) => s.name) || [],
+      text: text.trim(),
+      filename: file.name,
     })
-  } catch (err: any) {
+  } catch (err) {
     console.error("Parse error:", err)
-    return NextResponse.json({ error: err.message }, { status: 500 })
+    return NextResponse.json(
+      { error: "Failed to parse resume file." },
+      { status: 500 }
+    )
   }
 }

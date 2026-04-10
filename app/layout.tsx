@@ -1,49 +1,42 @@
-import type { Metadata } from "next";
-import { Inter, DM_Sans, Syne } from "next/font/google";
-import "./globals.css";
-import { Toaster } from "react-hot-toast";
+import type { Metadata } from "next"
+import { Inter } from "next/font/google"
+import "./globals.css"
+import { Toaster } from "react-hot-toast"
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-const dmSans = DM_Sans({ subsets: ["latin"], variable: "--font-dm-sans" });
-const syne = Syne({ subsets: ["latin"], variable: "--font-syne" });
+const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "AuraPal — AI Career & Growth Engine",
-  description: "AuraPal is your AI-powered career engine. Build resumes, generate cover letters, and more.",
-  openGraph: {
-    title: "AuraPal — AI Career & Growth Engine",
-    description: "Your AI-powered career engine.",
-    url: "https://www.aurapal.org",
-    siteName: "AuraPal",
-    images: [
-      {
-        url: "https://www.aurapal.org/og-image.png",
-        width: 1200,
-        height: 630,
-      },
-    ],
-    locale: "en_US",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "AuraPal — AI Career & Growth Engine",
-    description: "Your AI-powered career engine.",
-    images: ["https://www.aurapal.org/og-image.png"],
-  },
-};
+  description:
+    "AI-powered career tools: resume builder, cover letter " +
+    "generator, interview prep, LinkedIn optimizer, and " +
+    "more.",
+}
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: {
+  children: React.ReactNode
+}) {
   return (
-    <html lang="en" className={`${inter.variable} ${dmSans.variable} ${syne.variable}`}>
-      <body className="bg-[#0A0F1E] text-white">
+    <html lang="en" className="dark">
+      <body
+        className={
+          inter.className + " bg-[#0a0f1e] text-white min-h-screen antialiased"
+        }
+      >
         {children}
-        <Toaster position="bottom-right" />
+        <Toaster
+          position="bottom-right"
+          toastOptions={{
+            style: {
+              background: "#1e293b",
+              color: "#fff",
+              border: "1px solid #334155",
+            },
+          }}
+        />
       </body>
     </html>
-  );
+  )
 }
